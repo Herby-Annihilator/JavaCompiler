@@ -236,7 +236,7 @@ namespace Lexer
 					//OnErrorDetected($"Ожидался символ '=', но отсканирован символ '{_symbol}'");
 					_token.Value = _symbol.ToString();
 					_token.Lexeme = Lexemes.TypeError;
-					_token.Value = $"Неожиданный символ: '{_token.Value}'";
+					_token.Value = $"Одиночно стоящий символ '!'";
 					return;
 				}
 			}
