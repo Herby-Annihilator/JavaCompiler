@@ -12,7 +12,7 @@ namespace JavaCompilerTest
 		{
 			try
 			{
-				FileStream stream = new FileStream(@"D:\GarbageCan\Projects\JavaCompiler\JavaCompilerTest\lexemes.txt", FileMode.Open, FileAccess.Read);
+				FileStream stream = new FileStream(@"D:\GarbageCan\Projects\JavaCompiler\JavaCompilerTest\javaCode.txt", FileMode.Open, FileAccess.Read);
 				JavaLexer lexer = new JavaLexer();
 				lexer.Text = StreamToString(stream);
 				Token token;

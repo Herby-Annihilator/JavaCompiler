@@ -174,7 +174,9 @@ namespace Lexer
 			}
 			return false;
 		}
-
+		/// <summary>
+		/// Сканиурет любую допустимую грамматикой лексему при условии, что все игнорируемые символы пропущены.
+		/// </summary>
 		private void ScanToken()
 		{
 			_stringBuilder.Clear();  // очистили поле лексемы
@@ -267,7 +269,9 @@ namespace Lexer
 		private bool IsLetter(char symbol) => (symbol >= 'a' && symbol <= 'z')
 			|| (symbol >= 'A' && symbol <= 'Z')
 			|| symbol == '_';
-
+		/// <summary>
+		/// Обработка идентификатора
+		/// </summary>
 		private void ProcessIdentifier()
 		{
 			_stringBuilder.Append(_symbol);
@@ -294,7 +298,10 @@ namespace Lexer
 			ChooseKeyLexemeForToken(_token);
 			return;
 		}
-
+		/// <summary>
+		/// Проверяет, является ли идентификатор ключевым словом
+		/// </summary>
+		/// <param name="token"></param>
 		private void ChooseKeyLexemeForToken(Token token)
 		{
 			switch (token.Value)
@@ -337,11 +344,13 @@ namespace Lexer
 			}
 			return;
 		}
-
+		/// <summary>
+		/// Обработка числа. Сканирование ведется в два этапа, т.к. число типа double состоит из двух чисел типа int и точки
+		/// </summary>
 		private void ProcessDigit()
 		{
 			string value;
-			value = ScanInteger();
+			value = ScanInteger();  // сканируем int 
 			_token.Value = value;
 			_token.Lexeme = Lexemes.TypeInt;
 			if (_position >= Text.Length)
@@ -351,7 +360,7 @@ namespace Lexer
 			else
 			{
 				_symbol = Text[_position];
-				if (_symbol == '.')
+				if (_symbol == '.')  // если встретили точку
 				{
 					_position++;
 					CurrentColumn++;
@@ -370,14 +379,17 @@ namespace Lexer
 						CurrentColumn++;
 						return;
 					}
-					value = ScanInteger();
+					value = ScanInteger();  // то сканируем второую часть числа в виде int
 					_token.Value += value;
 					_token.Lexeme = Lexemes.TypeDouble;
 					return;
 				}
 			}
 		}
-
+		/// <summary>
+		/// Возвращает строку, представляющую число типа int, начинающееся с _symbol
+		/// </summary>
+		/// <returns></returns>
 		private string ScanInteger()
 		{
 			_stringBuilder.Clear();
@@ -401,7 +413,12 @@ namespace Lexer
 			// если достигнут конец текста либо в процессе чтения числа, либо даже если в цикл не заходили
 			return _stringBuilder.ToString();
 		}
-
+		/// <summary>
+		/// Сканирует следующий символ, которым предположительно должен быть nextSymbolShouldBe, если отсканирован другой 
+		/// символ, то ничего не делает
+		/// </summary>
+		/// <param name="nextSymbolShouldBe">символ, который, возможно, будет частью лексемы</param>
+		/// <param name="nextLexemeShouldBe"></param>
 		private void TryScanNext(char nextSymbolShouldBe, Lexemes nextLexemeShouldBe)
 		{
 			_position++;
@@ -420,7 +437,10 @@ namespace Lexer
 				return;
 			}
 		}
-
+		/// <summary>
+		/// На основе свойства Value токена выбирает необходимую лексему
+		/// </summary>
+		/// <param name="token"></param>
 		private void ChooseOtherLexemeForToken(Token token)
 		{
 			switch (token.Value)

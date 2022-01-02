@@ -13,5 +13,6 @@ namespace Compiler
 		string Text { get; set; }
 		int Position { get; set; }  // при ручной установке, свойства CurrentRow и CurrentColumn будут сброшены в 0
 		Token GetNextToken();
+		event EventHandler<LexerEventArgs> ErrorDetected;
 	}
 }

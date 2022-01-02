@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Lexer
+namespace Compiler
 {
 	public class LexerEventArgs : EventArgs
 	{
