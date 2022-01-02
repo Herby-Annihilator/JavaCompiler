@@ -1,0 +1,27 @@
+{
+}
+(
+)
+*
+/
+%
+=
+==
+++
+--
++
+-
+int a = 145;
+double b = 145.7;
+!=
+const int f;
+while(i < 5) {}
+int main() { function(); }
+class program
+;
+,
+.
+5 / 6
+//
+/*
+*/

@@ -34,11 +34,21 @@ namespace Lexer
 
 		public Token GetNextToken()
 		{
-			SkipIgnorableSymbols();
-			CorrectToken();
+			if (!SkipIgnorableSymbols())
+			{
+				_token.Value = "";
+				_token.Lexeme = Lexemes.TypeEnd;
+				return _token;
+			}
+			ScanToken();
 			return _token;
 		}
 
+		/// <summary>
+		/// Пропускает игнорируемые символы. Устанавливает _position на первый не игнорируемый символ. Если достигнут конец
+		/// текста, то вернет false, иначе true
+		/// </summary>
+		/// <returns>false - если достигнут конец текста, true - если все нормально</returns>
 		private bool SkipIgnorableSymbols()
 		{
 			while (_position < Text.Length)
@@ -70,14 +80,17 @@ namespace Lexer
 						CurrentColumn++;
 						if (_symbol == '/')  // комментарий начинается на // - нужно пропустить все до \n
 						{
-							SkipSimpleComment();  // установит _position, соответствующий \n, нужно читать дальше
+							if (!SkipSimpleComment())  // установит _position, соответствующий \n, нужно читать дальше
+								return false;
 						}
 						else if (_symbol == '*') // это комментарий типа /**/
 						{
-							SkipDifficultComment();  // установит _position соответствующий '/', нужно читать дальше
+							if (!SkipDifficultComment())  // установит _position соответствующий '/', нужно читать дальше
+								return false;
 						}
 						else  // это операция деления, будет обработана дальше
 						{
+							_position--;
 							return true;
 						}
 					}
@@ -91,7 +104,10 @@ namespace Lexer
 			}
 			return false;
 		}
-
+		/// <summary>
+		/// Пропустит простой комментарий, вернет true в случае успеха, если достигнут конец текста, то вернет false
+		/// </summary>
+		/// <returns></returns>
 		private bool SkipSimpleComment()
 		{
 			while (_position < Text.Length)
@@ -111,7 +127,10 @@ namespace Lexer
 			}
 			return false;
 		}
-
+		/// <summary>
+		/// Пропустит сложный комментарий, вернет true в случае успеха, если достигнут конец текста, то вернет false
+		/// </summary>
+		/// <returns></returns>
 		private bool SkipDifficultComment()
 		{
 			while (_position < Text.Length)
@@ -156,7 +175,7 @@ namespace Lexer
 			return false;
 		}
 
-		private void CorrectToken()
+		private void ScanToken()
 		{
 			_stringBuilder.Clear();  // очистили поле лексемы
 			_symbol = Text[_position];
@@ -170,81 +189,27 @@ namespace Lexer
 			}
 			else if (_symbol == '>')
 			{
-				_token.Value = ">";
 				_token.Lexeme = Lexemes.TypeMoreSign;
+				_token.Value = _symbol.ToString();
+				_stringBuilder.Append(_symbol);			
+				TryScanNext('=', Lexemes.TypeMoreOrEqualSign);
 				_position++;
-				CurrentColumn++;
-				if (_position >= Text.Length)
-				{
-					return;
-				}
-				_symbol = Text[_position];
-				if (_symbol == '=')
-				{
-					_position++;
-					CurrentColumn++;
-					_token.Lexeme = Lexemes.TypeMoreOrEqualSign;
-					_token.Value = ">=";
-				}
-				else
-				{
-					OnErrorDetected($"Ожидался символ '=', но отсканирован символ '{_symbol}'");
-					_token.Value = _symbol.ToString();
-					_token.Lexeme = Lexemes.TypeError;
-					return;
-				}
 			}
 			else if (_symbol == '<')
 			{
-				_token.Value = "<";
 				_token.Lexeme = Lexemes.TypeLessSign;
+				_token.Value = _symbol.ToString();
+				_stringBuilder.Append(_symbol);
+				TryScanNext('=', Lexemes.TypeLessOrEqualSign);
 				_position++;
-				CurrentColumn++;
-				if (_position >= Text.Length)
-				{
-					return;
-				}
-				_symbol = Text[_position];
-				if (_symbol == '=')
-				{
-					_position++;
-					CurrentColumn++;
-					_token.Lexeme = Lexemes.TypeLessOrEqualSign;
-					_token.Value = "<=";
-				}
-				else
-				{
-					OnErrorDetected($"Ожидался символ '=', но отсканирован символ '{_symbol}'");
-					_token.Value = _symbol.ToString();
-					_token.Lexeme = Lexemes.TypeError;
-					return;
-				}
 			}
 			else if (_symbol == '=')
 			{
-				_token.Value = "=";
 				_token.Lexeme = Lexemes.TypeAssignmentSign;
+				_token.Value = _symbol.ToString();
+				_stringBuilder.Append(_symbol);
+				TryScanNext('=', Lexemes.TypeEqualSign);
 				_position++;
-				CurrentColumn++;
-				if (_position >= Text.Length)
-				{
-					return;
-				}
-				_symbol = Text[_position];
-				if (_symbol == '=')
-				{
-					_position++;
-					CurrentColumn++;
-					_token.Lexeme = Lexemes.TypeEqualSign;
-					_token.Value = "==";
-				}
-				else
-				{
-					OnErrorDetected($"Ожидался символ '=', но отсканирован символ '{_symbol}'");
-					_token.Value = _symbol.ToString();
-					_token.Lexeme = Lexemes.TypeError;
-					return;
-				}
 			}
 			else if (_symbol == '!')
 			{
@@ -260,74 +225,40 @@ namespace Lexer
 				if (_symbol == '=')
 				{
 					_position++;
-					CurrentColumn++;
+					//CurrentColumn++;
 					_token.Lexeme = Lexemes.TypeNotEqualSign;
 					_token.Value = "!=";
 				}
 				else
 				{
-					OnErrorDetected($"Ожидался символ '=', но отсканирован символ '{_symbol}'");
+					//OnErrorDetected($"Ожидался символ '=', но отсканирован символ '{_symbol}'");
 					_token.Value = _symbol.ToString();
 					_token.Lexeme = Lexemes.TypeError;
+					_token.Value = $"Неожиданный символ: '{_token.Value}'";
 					return;
 				}
 			}
 			else if (_symbol == '+')
 			{
-				_token.Value = "+";
 				_token.Lexeme = Lexemes.TypePlus;
+				_token.Value = _symbol.ToString();
+				_stringBuilder.Append(_symbol);
+				TryScanNext('+', Lexemes.TypeIncrement);
 				_position++;
-				CurrentColumn++;
-				if (_position >= Text.Length)
-				{
-					return;
-				}
-				_symbol = Text[_position];
-				if (_symbol == '+')
-				{
-					_position++;
-					CurrentColumn++;
-					_token.Lexeme = Lexemes.TypeIncrement;
-					_token.Value = "++";
-				}
-				else
-				{
-					OnErrorDetected($"Ожидался символ '+', но отсканирован символ '{_symbol}'");
-					_token.Value = _symbol.ToString();
-					_token.Lexeme = Lexemes.TypeError;
-					return;
-				}
 			}
 			else if (_symbol == '-')
 			{
-				_token.Value = "-";
 				_token.Lexeme = Lexemes.TypeMinus;
+				_token.Value = _symbol.ToString();
+				_stringBuilder.Append(_symbol);
+				TryScanNext('-', Lexemes.TypeDecrement);
 				_position++;
-				CurrentColumn++;
-				if (_position >= Text.Length)
-				{
-					return;
-				}
-				_symbol = Text[_position];
-				if (_symbol == '-')
-				{
-					_position++;
-					CurrentColumn++;
-					_token.Lexeme = Lexemes.TypeDecrement;
-					_token.Value = "--";
-				}
-				else
-				{
-					OnErrorDetected($"Ожидался символ '-', но отсканирован символ '{_symbol}'");
-					_token.Value = _symbol.ToString();
-					_token.Lexeme = Lexemes.TypeError;
-					return;
-				}
 			}
 			else
 			{
 				_token.Value = _symbol.ToString();
 				ChooseOtherLexemeForToken(_token);
+				_position++;
 			}
 			return;
 		}
@@ -339,7 +270,6 @@ namespace Lexer
 
 		private void ProcessIdentifier()
 		{
-			_stringBuilder.Clear();
 			_stringBuilder.Append(_symbol);
 			_position++;
 			CurrentColumn++;
@@ -359,6 +289,10 @@ namespace Lexer
 					return;
 				}
 			}
+			// сюда попадем только в том случае, когда достигнут конец всего текста
+			_token.Value = _stringBuilder.ToString();
+			ChooseKeyLexemeForToken(_token);
+			return;
 		}
 
 		private void ChooseKeyLexemeForToken(Token token)
@@ -406,6 +340,46 @@ namespace Lexer
 
 		private void ProcessDigit()
 		{
+			string value;
+			value = ScanInteger();
+			_token.Value = value;
+			_token.Lexeme = Lexemes.TypeInt;
+			if (_position >= Text.Length)
+			{
+				return;
+			}
+			else
+			{
+				_symbol = Text[_position];
+				if (_symbol == '.')
+				{
+					_position++;
+					CurrentColumn++;
+					_token.Value += ".";
+					if (_position >= Text.Length)
+					{
+						_token.Lexeme = Lexemes.TypeError;
+						return;
+					}
+					_symbol = Text[_position];					
+					if (!IsDigit(_symbol))
+					{
+						_token.Value += _symbol;
+						_token.Lexeme = Lexemes.TypeError;
+						_position++;
+						CurrentColumn++;
+						return;
+					}
+					value = ScanInteger();
+					_token.Value += value;
+					_token.Lexeme = Lexemes.TypeDouble;
+					return;
+				}
+			}
+		}
+
+		private string ScanInteger()
+		{
 			_stringBuilder.Clear();
 			_stringBuilder.Append(_symbol);
 			_position++;
@@ -419,33 +393,31 @@ namespace Lexer
 					_position++;
 					CurrentColumn++;
 				}
-				else if (_symbol == '.')
-				{
-					_stringBuilder.Append(_symbol);
-					_position++;
-					CurrentColumn++;
-					while (_position < Text.Length)
-					{
-						if (IsDigit(_symbol))
-						{
-							_stringBuilder.Append(_symbol);
-							_position++;
-							CurrentColumn++;
-						}
-						else
-						{
-							_token.Value = _stringBuilder.ToString();
-							_token.Lexeme = Lexemes.TypeDouble;
-							return;
-						}
-					}
-				}
 				else
 				{
-					_token.Value = _stringBuilder.ToString();
-					_token.Lexeme = Lexemes.TypeInt;
-					return;
+					return _stringBuilder.ToString();
 				}
+			}
+			// если достигнут конец текста либо в процессе чтения числа, либо даже если в цикл не заходили
+			return _stringBuilder.ToString();
+		}
+
+		private void TryScanNext(char nextSymbolShouldBe, Lexemes nextLexemeShouldBe)
+		{
+			_position++;
+			CurrentColumn++;
+			if (_position >= Text.Length || (_symbol = Text[_position]) != nextSymbolShouldBe)
+			{
+				_position--;
+				CurrentColumn--;
+				return;
+			}
+			else
+			{
+				_stringBuilder.Append(_symbol);
+				_token.Lexeme = nextLexemeShouldBe;
+				_token.Value = _stringBuilder.ToString();
+				return;
 			}
 		}
 
@@ -505,7 +477,8 @@ namespace Lexer
 					}
 				default:
 					token.Lexeme = Lexemes.TypeError;
-					OnErrorDetected($"Неожиданный символ: '{token.Value}'");
+					token.Value = $"Неожиданный символ: '{token.Value}'";
+					//OnErrorDetected($"Неожиданный символ: '{token.Value}'");
 					break;
 			}
 		}

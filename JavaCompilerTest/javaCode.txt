@@ -1,0 +1,19 @@
+/*
+	class Program and Main
+*/
+class Program  // class Program
+{
+	class Main // класс Main
+	{
+		int main()
+		{
+			int a = 10;
+			double b = 10.1;
+			return a + c;
+		}
+		int seven()
+		{
+			return 7;
+		}
+	}
+}
