@@ -259,6 +259,7 @@ namespace SynaxAnalyzer
 		public void FifthLevel()
 		{
 			int position = _lexer.Position;
+			int position1;
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme == Lexemes.TypeInt || _token.Lexeme == Lexemes.TypeDouble)
 			{
@@ -266,7 +267,7 @@ namespace SynaxAnalyzer
 			}
 			else if (_token.Lexeme == Lexemes.TypeIdentifier)
 			{
-				position = _lexer.Position;
+				position1 = _lexer.Position;
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme == Lexemes.TypeDot)
 				{
@@ -280,11 +281,12 @@ namespace SynaxAnalyzer
 				}
 				else
 				{
-					_lexer.Position = position;
+					_lexer.Position = position1;
 				}
 			}
 			else
 			{
+				_lexer.Position = position;
 				Expression();
 			}
 		}
