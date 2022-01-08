@@ -51,6 +51,7 @@ namespace JavaCompilerTest
 				int two()
 				{
 					int one() { return 1; }
+
 					return 2;
 				}
 				return 3;
