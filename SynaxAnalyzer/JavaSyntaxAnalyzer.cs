@@ -19,6 +19,18 @@ namespace SynaxAnalyzer
 			_lexer.Text = text;
 		}
 
+		public void Analyze()
+		{
+			try
+			{
+				Program();
+			}
+			catch (Exception e)
+			{
+				// todo
+			}
+		}
+
 		public void AssignmentOperator()
 		{
 			_token = _lexer.GetNextToken();
@@ -36,7 +48,7 @@ namespace SynaxAnalyzer
 						}
 						else
 						{
-							// error
+							throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
 						}
 					}
 					else if (_token.Lexeme == Lexemes.TypeAssignmentSign)
@@ -45,13 +57,13 @@ namespace SynaxAnalyzer
 					}
 					else
 					{
-						// error
+						throw new Exception($"Ожидался символ '.' или знак присваивания, но отсканировано '{_token.Lexeme}'");
 					}
 				}
 			}
 			else
 			{
-				// error
+				throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
 			}
 		}
 
@@ -60,18 +72,19 @@ namespace SynaxAnalyzer
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme != Lexemes.TypeClass)
 			{
-				// error
+				throw new Exception($"Ожидалось ключевое слово 'class', но отсканировано '{_token.Lexeme}'");
 			}
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme != Lexemes.TypeIdentifier)
 			{
-				// error
+				throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
 			}
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme != Lexemes.TypeOpenCurlyBrace)
 			{
-				// error
+				throw new Exception("Ожидался символ '{', но отсканировано '" + _token.Lexeme + "'");
 			}
+			int position = _lexer.Position;
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme == Lexemes.TypeCloseCurlyBrace)
 			{
@@ -79,7 +92,13 @@ namespace SynaxAnalyzer
 			}
 			else
 			{
+				_lexer.Position = position;
 				Descriptions();
+				_token = _lexer.GetNextToken();
+				if (_token.Lexeme != Lexemes.TypeCloseCurlyBrace)
+				{
+					throw new Exception("Ожидался символ '}', но отсканировано '" + _token.Lexeme + "'");
+				}
 			}
 		}
 
@@ -92,17 +111,18 @@ namespace SynaxAnalyzer
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme != Lexemes.TypeCloseCurlyBrace)
 				{
-					// error
+					throw new Exception("Ожидался символ '}', но отсканировано '" + _token.Lexeme + "'");
 				}
 			}
 			else
 			{
-				// error
+				throw new Exception("Ожидался символ '{', но отсканировано '" + _token.Lexeme + "'");
 			}
 		}
 
 		public void CompoundOperatorBody()
 		{
+			int position;
 			while (true)
 			{
 				if (IsItClassDescription())
@@ -113,12 +133,26 @@ namespace SynaxAnalyzer
 				{
 					DataDescription();
 				}
-				// todo
+				else
+				{
+					position = _lexer.Position;
+					_token = _lexer.GetNextToken();
+					if (_token.Lexeme == Lexemes.TypeCloseCurlyBrace)
+					{
+						_lexer.Position = position;
+						return;
+					}
+					else
+					{
+						Operator();
+					}
+				}
 			}
 		}
 
 		public void Data()
 		{
+			int position;
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme == Lexemes.TypeDataInt || _token.Lexeme == Lexemes.TypeDataDouble)
 			{
@@ -133,23 +167,33 @@ namespace SynaxAnalyzer
 						else if (_token.Lexeme == Lexemes.TypeAssignmentSign)
 						{
 							Expression();
+							position = _lexer.Position;
+							_token = _lexer.GetNextToken();
+							if (_token.Lexeme == Lexemes.TypeComma)
+								continue;
+							else if (_token.Lexeme == Lexemes.TypeSemicolon)
+								break;
+							else
+							{
+								_lexer.Position = position;
+							}
 						}
 						else if (_token.Lexeme == Lexemes.TypeSemicolon)
 							break;
 						else
 						{
-							// error
+							throw new Exception($"Ожидались символы ',', '=' или ';', но отсканировано '{_token.Lexeme}'");
 						}
 					}
 					else
 					{
-						// error
+						throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
 					}
 				} while (_token.Lexeme != Lexemes.TypeSemicolon);
 			}
 			else
 			{
-				// error
+				throw new Exception($"Ожидался тип данных int или double, но отсканировано '{_token.Lexeme}'");
 			}
 		}
 
@@ -165,25 +209,28 @@ namespace SynaxAnalyzer
 			}
 			else
 			{
-				// error
+				throw new Exception($"Ожидалось описание данных или именованой константы, но отсканировано '{_token.Lexeme}'");
 			}
 		}
 
 		public void Descriptions()
 		{
-			if (IsItClassDescription())
+			while (true)
 			{
-				ClassDescription();
-			}
-			else if (IsItFunctionDescription())
-			{
-				FunctionDescription();
-			}
-			else if (IsItDataDescription())
-			{
-				DataDescription();
-			}
-			return;
+				if (IsItClassDescription())
+				{
+					ClassDescription();
+				}
+				else if (IsItFunctionDescription())
+				{
+					FunctionDescription();
+				}
+				else if (IsItDataDescription())
+				{
+					DataDescription();
+				}
+				return;
+			}			
 		}
 
 		public void Expression()
@@ -205,7 +252,30 @@ namespace SynaxAnalyzer
 
 		public void FifthLevel()
 		{
-			throw new NotImplementedException();
+			int position = _lexer.Position;
+			_token = _lexer.GetNextToken();
+			if (_token.Lexeme == Lexemes.TypeInt || _token.Lexeme == Lexemes.TypeDouble)
+			{
+				return;
+			}
+			else if (_token.Lexeme == Lexemes.TypeIdentifier)
+			{
+				_token = _lexer.GetNextToken();
+				if (_token.Lexeme == Lexemes.TypeDot)
+				{
+					_lexer.Position = position;
+					Name();
+				}
+				else if (_token.Lexeme == Lexemes.TypeOpenParenthesis)
+				{
+					_lexer.Position = position;
+					FunctionCall();
+				}
+			}
+			else
+			{
+				Expression();
+			}
 		}
 
 		public void FirstLevel()
@@ -250,17 +320,17 @@ namespace SynaxAnalyzer
 					_token = _lexer.GetNextToken();
 					if (_token.Lexeme != Lexemes.TypeCloseParenthesis)
 					{
-						// error
+						throw new Exception("Ожидался символ ')', но отсканировано '" + _token.Lexeme + "'");
 					}
 				}
 				else
 				{
-					// error
+					throw new Exception("Ожидался символ '(', но отсканировано '" + _token.Lexeme + "'");
 				}
 			}
 			else
 			{
-				// error
+				throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
 			}
 		}
 
@@ -282,16 +352,46 @@ namespace SynaxAnalyzer
 						}
 						else
 						{
-							// error
+							throw new Exception($"Ожидался символ ')', но отсканировано '{_token.Lexeme}'");
 						}
 					}
+					else
+					{
+						throw new Exception($"Ожидался символ '(', но отсканировано '{_token.Lexeme}'");
+					}
 				}
+				else
+				{
+					throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
+				}
+			}
+			else
+			{
+				throw new Exception($"Ожидался тип данных int или double, но отсканировано '{_token.Lexeme}'");
 			}
 		}
 
 		public void Name()
 		{
-			throw new NotImplementedException();
+			int position;
+			while (true)
+			{
+				_token = _lexer.GetNextToken();
+				if (_token.Lexeme == Lexemes.TypeIdentifier)
+				{
+					position = _lexer.Position;
+					_token = _lexer.GetNextToken();
+					if (_token.Lexeme != Lexemes.TypeDot)
+					{
+						_lexer.Position = position;
+						return;
+					}
+				}
+				else
+				{
+					throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
+				}
+			}
 		}
 
 		public void NamedConstant()
@@ -314,32 +414,32 @@ namespace SynaxAnalyzer
 								_token = _lexer.GetNextToken();
 								if (_token.Lexeme != Lexemes.TypeSemicolon)
 								{
-									// error
+									throw new Exception($"Ожидался символ ';', но отсканировано '{_token.Lexeme}'");
 								}
 							}
 							else
 							{
-								// error
+								throw new Exception($"Ожидался константа, но отсканировано '{_token.Lexeme}'");
 							}
 						}
 						else
 						{
-							// error
+							throw new Exception($"Ожидался символ '=', но отсканировано '{_token.Lexeme}'");
 						}
 					}
 					else
 					{
-						// error
+						throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
 					}
 				}
 				else
 				{
-					// error
+					throw new Exception($"Ожидался тип данных int или double, но отсканировано '{_token.Lexeme}'");
 				}
 			}
 			else
 			{
-				// error
+				throw new Exception($"Ожидалось ключевое слово 'const', но отсканировано '{_token.Lexeme}'");
 			}
 		}
 
@@ -377,7 +477,7 @@ namespace SynaxAnalyzer
 			}
 			else
 			{
-				// error
+				throw new Exception($"Не был достигнут конец файла, отсканировано '{_token.Lexeme}'");
 			}
 		}
 
@@ -418,12 +518,12 @@ namespace SynaxAnalyzer
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme != Lexemes.TypeSemicolon)
 				{
-					// error
+					throw new Exception($"Ожидался символ ';', но отсканировано '{_token.Lexeme}'");
 				}
 			}
 			else
 			{
-				// error
+				throw new Exception($"Ожидалось ключевое слово 'while' или идентификатор, но отсканировано '{_token.Lexeme}'");
 			}
 		}
 
@@ -454,17 +554,17 @@ namespace SynaxAnalyzer
 					}
 					else
 					{
-						// error
+						throw new Exception($"Ожидался символ ')', но отсканировано '{_token.Lexeme}'");
 					}
 				}
 				else
 				{
-					// error
+					throw new Exception($"Ожидался символ '(', но отсканировано '{_token.Lexeme}'");
 				}
 			}
 			else
 			{
-				// error
+				throw new Exception($"Ожидалось ключевое слово 'while', но отсканировано '{_token.Lexeme}'");
 			}
 		}
 
@@ -538,16 +638,6 @@ namespace SynaxAnalyzer
 			return ok;
 		}
 
-		private bool IsItOperator()
-		{
-
-		}
-
-		private bool IsItSimpleOperator()
-		{
-
-		}
-
 		private bool IsItWhileCycle()
 		{
 			bool ok = false;
@@ -558,8 +648,6 @@ namespace SynaxAnalyzer
 			_lexer.Position = position;
 			return ok;
 		}
-
-
 
 		#endregion
 	}
