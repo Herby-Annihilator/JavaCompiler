@@ -9,11 +9,12 @@ namespace JavaCompilerTest
 {
 	class Program
 	{
+		string str = StreamToString(new FileStream("", FileMode.Open, FileAccess.Read));
 		static void Main(string[] args)
 		{
 			try
 			{
-				FileStream stream = new FileStream(@"D:\GarbageCan\Projects\JavaCompiler\JavaCompilerTest\javaCode.txt", FileMode.Open, FileAccess.Read);
+				FileStream stream = new FileStream(@"D:\GarbageCan\Projects\JavaCompiler\JavaCompilerTest\Variables.txt", FileMode.Open, FileAccess.Read);
 				JavaLexer lexer = new JavaLexer();
 				lexer.Text = StreamToString(stream);
 				stream.Close();
