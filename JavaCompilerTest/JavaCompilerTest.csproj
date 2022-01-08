@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Compiler\Compiler.csproj" />
     <ProjectReference Include="..\Lexer\Lexer.csproj" />
+    <ProjectReference Include="..\SynaxAnalyzer\SynaxAnalyzer.csproj" />
   </ItemGroup>
 
 </Project>

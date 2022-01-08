@@ -10,8 +10,12 @@ namespace SynaxAnalyzer
 	public class JavaSyntaxAnalyzer : ISyntaxAnalyzer
 	{
 		private ILexer _lexer;
-		private int _position;
 		private Token _token;
+
+		public JavaSyntaxAnalyzer(ILexer lexer)
+		{
+			_lexer = lexer;
+		}
 
 		public JavaSyntaxAnalyzer(ILexer lexer, string text)
 		{
@@ -144,6 +148,7 @@ namespace SynaxAnalyzer
 					}
 					else
 					{
+						_lexer.Position = position;
 						Operator();
 					}
 				}
@@ -229,7 +234,8 @@ namespace SynaxAnalyzer
 				{
 					DataDescription();
 				}
-				return;
+				else
+					return;
 			}			
 		}
 
@@ -260,6 +266,7 @@ namespace SynaxAnalyzer
 			}
 			else if (_token.Lexeme == Lexemes.TypeIdentifier)
 			{
+				position = _lexer.Position;
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme == Lexemes.TypeDot)
 				{
@@ -270,6 +277,10 @@ namespace SynaxAnalyzer
 				{
 					_lexer.Position = position;
 					FunctionCall();
+				}
+				else
+				{
+					_lexer.Position = position;
 				}
 			}
 			else
@@ -292,10 +303,11 @@ namespace SynaxAnalyzer
 
 		public void FourthLevel()
 		{
+			int position;
 			FifthLevel();
 			while (true)
 			{
-				_position = _lexer.Position;
+				position = _lexer.Position;
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme == Lexemes.TypeIncrement || _token.Lexeme == Lexemes.TypeDecrement)
 				{
@@ -303,7 +315,7 @@ namespace SynaxAnalyzer
 				}
 				else
 				{
-					_lexer.Position = _position;
+					_lexer.Position = position;
 					break;
 				}
 			}
@@ -445,26 +457,27 @@ namespace SynaxAnalyzer
 
 		public void Operator()
 		{
+			int position = _lexer.Position;
 			_token = _lexer.GetNextToken();
-			_position = _lexer.Position;
 			if (_token.Lexeme == Lexemes.TypeSemicolon)
 			{
 				return;
 			}
 			else if (_token.Lexeme == Lexemes.TypeOpenCurlyBrace)
 			{
-				_lexer.Position = _position;
+				_lexer.Position = position;
 				CompoundOperator();
 			}
 			else
 			{
+				_lexer.Position = position;
 				SimpleOperator();
 			}
 		}
 
 		public void Program()
 		{
-			_position = _lexer.Position;
+			int position = _lexer.Position;
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme == Lexemes.TypeEnd)
 			{
@@ -472,7 +485,7 @@ namespace SynaxAnalyzer
 			}
 			else if (_token.Lexeme == Lexemes.TypeClass)
 			{
-				_lexer.Position = _position;
+				_lexer.Position = position;
 				ClassDescription();
 			}
 			else
@@ -495,24 +508,34 @@ namespace SynaxAnalyzer
 
 		public void SimpleOperator()
 		{
-			_position = _lexer.Position;
+			int position = _lexer.Position;
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme == Lexemes.TypeWhile)
 			{
-				_lexer.Position = _position;
+				_lexer.Position = position;
 				WhileCycle();
+			}
+			else if (_token.Lexeme == Lexemes.TypeReturn)
+			{
+				_lexer.Position = position;
+				ReturnOperator();
+				_token = _lexer.GetNextToken();
+				if (_token.Lexeme != Lexemes.TypeSemicolon)
+				{
+					throw new Exception($"Ожидался символ ';', но отсканировано '{_token.Lexeme}'");
+				}
 			}
 			else if (_token.Lexeme == Lexemes.TypeIdentifier)
 			{
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme == Lexemes.TypeOpenParenthesis)
 				{
-					_lexer.Position = _position;
+					_lexer.Position = position;
 					FunctionCall();					
 				}
 				else
 				{
-					_lexer.Position = _position;
+					_lexer.Position = position;
 					AssignmentOperator();
 				}
 				_token = _lexer.GetNextToken();
@@ -523,18 +546,33 @@ namespace SynaxAnalyzer
 			}
 			else
 			{
-				throw new Exception($"Ожидалось ключевое слово 'while' или идентификатор, но отсканировано '{_token.Lexeme}'");
+				throw new Exception($"Ожидалось ключевое слово 'while', 'return' или идентификатор," +
+					$" но отсканировано '{_token.Lexeme}'");
+			}
+		}
+
+		public void ReturnOperator()
+		{
+			_token = _lexer.GetNextToken();
+			if (_token.Lexeme == Lexemes.TypeReturn)
+			{
+				Expression();
+			}
+			else
+			{
+				throw new Exception($"Ожидался оператор return, но отсканировано {_token.Lexeme}");
 			}
 		}
 
 		public void ThirdLevel()
 		{
+			int position;
 			do
 			{
-				_position = _lexer.Position;
+				position = _lexer.Position;
 				_token = _lexer.GetNextToken();
 			} while (_token.Lexeme == Lexemes.TypeDecrement || _token.Lexeme == Lexemes.TypeIncrement);
-			_lexer.Position = _position;
+			_lexer.Position = position;
 			FourthLevel();
 		}
 
