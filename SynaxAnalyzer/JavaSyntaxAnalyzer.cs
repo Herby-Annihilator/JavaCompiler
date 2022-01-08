@@ -52,7 +52,7 @@ namespace SynaxAnalyzer
 						}
 						else
 						{
-							throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
+							throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}': {_token.Value}");
 						}
 					}
 					else if (_token.Lexeme == Lexemes.TypeAssignmentSign)
@@ -61,13 +61,13 @@ namespace SynaxAnalyzer
 					}
 					else
 					{
-						throw new Exception($"Ожидался символ '.' или знак присваивания, но отсканировано '{_token.Lexeme}'");
+						throw new Exception($"Ожидался символ '.' или знак присваивания, но отсканировано '{_token.Lexeme}': {_token.Value}");
 					}
 				}
 			}
 			else
 			{
-				throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
+				throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
 		}
 
@@ -76,17 +76,17 @@ namespace SynaxAnalyzer
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme != Lexemes.TypeClass)
 			{
-				throw new Exception($"Ожидалось ключевое слово 'class', но отсканировано '{_token.Lexeme}'");
+				throw new Exception($"Ожидалось ключевое слово 'class', но отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme != Lexemes.TypeIdentifier)
 			{
-				throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
+				throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme != Lexemes.TypeOpenCurlyBrace)
 			{
-				throw new Exception("Ожидался символ '{', но отсканировано '" + _token.Lexeme + "'");
+				throw new Exception("Ожидался символ '{', но отсканировано '" + _token.Lexeme + "': " + _token.Value);
 			}
 			int position = _lexer.Position;
 			_token = _lexer.GetNextToken();
@@ -101,7 +101,7 @@ namespace SynaxAnalyzer
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme != Lexemes.TypeCloseCurlyBrace)
 				{
-					throw new Exception("Ожидался символ '}', но отсканировано '" + _token.Lexeme + "'");
+					throw new Exception("Ожидался символ '}', но отсканировано '" + _token.Lexeme + "': " + _token.Value);
 				}
 			}
 		}
@@ -115,12 +115,12 @@ namespace SynaxAnalyzer
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme != Lexemes.TypeCloseCurlyBrace)
 				{
-					throw new Exception("Ожидался символ '}', но отсканировано '" + _token.Lexeme + "'");
+					throw new Exception("Ожидался символ '}', но отсканировано '" + _token.Lexeme + "': " + _token.Value);
 				}
 			}
 			else
 			{
-				throw new Exception("Ожидался символ '{', но отсканировано '" + _token.Lexeme + "'");
+				throw new Exception("Ожидался символ '{', но отсканировано '" + _token.Lexeme + "': " + _token.Value);
 			}
 		}
 
@@ -191,18 +191,18 @@ namespace SynaxAnalyzer
 							break;
 						else
 						{
-							throw new Exception($"Ожидались символы ',', '=' или ';', но отсканировано '{_token.Lexeme}'");
+							throw new Exception($"Ожидались символы ',', '=' или ';', но отсканировано '{_token.Lexeme}': {_token.Value}");
 						}
 					}
 					else
 					{
-						throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
+						throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}': {_token.Value}");
 					}
 				} while (_token.Lexeme != Lexemes.TypeSemicolon);
 			}
 			else
 			{
-				throw new Exception($"Ожидался тип данных int или double, но отсканировано '{_token.Lexeme}'");
+				throw new Exception($"Ожидался тип данных int или double, но отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
 		}
 
@@ -218,7 +218,7 @@ namespace SynaxAnalyzer
 			}
 			else
 			{
-				throw new Exception($"Ожидалось описание данных или именованой константы, но отсканировано '{_token.Lexeme}'");
+				throw new Exception($"Ожидалось описание данных или именованой константы, но отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
 		}
 
@@ -338,17 +338,17 @@ namespace SynaxAnalyzer
 					_token = _lexer.GetNextToken();
 					if (_token.Lexeme != Lexemes.TypeCloseParenthesis)
 					{
-						throw new Exception("Ожидался символ ')', но отсканировано '" + _token.Lexeme + "'");
+						throw new Exception("Ожидался символ ')', но отсканировано '" + _token.Lexeme + "': " + _token.Value);
 					}
 				}
 				else
 				{
-					throw new Exception("Ожидался символ '(', но отсканировано '" + _token.Lexeme + "'");
+					throw new Exception("Ожидался символ '(', но отсканировано '" + _token.Lexeme + "': " + _token.Value);
 				}
 			}
 			else
 			{
-				throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
+				throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
 		}
 
@@ -370,22 +370,22 @@ namespace SynaxAnalyzer
 						}
 						else
 						{
-							throw new Exception($"Ожидался символ ')', но отсканировано '{_token.Lexeme}'");
+							throw new Exception($"Ожидался символ ')', но отсканировано '{_token.Lexeme}': {_token.Value}");
 						}
 					}
 					else
 					{
-						throw new Exception($"Ожидался символ '(', но отсканировано '{_token.Lexeme}'");
+						throw new Exception($"Ожидался символ '(', но отсканировано '{_token.Lexeme}': {_token.Value}");
 					}
 				}
 				else
 				{
-					throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
+					throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}': {_token.Value}");
 				}
 			}
 			else
 			{
-				throw new Exception($"Ожидался тип данных int или double, но отсканировано '{_token.Lexeme}'");
+				throw new Exception($"Ожидался тип данных int или double, но отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
 		}
 
@@ -407,7 +407,7 @@ namespace SynaxAnalyzer
 				}
 				else
 				{
-					throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
+					throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}': {_token.Value}");
 				}
 			}
 		}
@@ -432,32 +432,32 @@ namespace SynaxAnalyzer
 								_token = _lexer.GetNextToken();
 								if (_token.Lexeme != Lexemes.TypeSemicolon)
 								{
-									throw new Exception($"Ожидался символ ';', но отсканировано '{_token.Lexeme}'");
+									throw new Exception($"Ожидался символ ';', но отсканировано '{_token.Lexeme}': {_token.Value}");
 								}
 							}
 							else
 							{
-								throw new Exception($"Ожидался константа, но отсканировано '{_token.Lexeme}'");
+								throw new Exception($"Ожидался константа, но отсканировано '{_token.Lexeme}': {_token.Value}");
 							}
 						}
 						else
 						{
-							throw new Exception($"Ожидался символ '=', но отсканировано '{_token.Lexeme}'");
+							throw new Exception($"Ожидался символ '=', но отсканировано '{_token.Lexeme}': {_token.Value}");
 						}
 					}
 					else
 					{
-						throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}'");
+						throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}': {_token.Value}");
 					}
 				}
 				else
 				{
-					throw new Exception($"Ожидался тип данных int или double, но отсканировано '{_token.Lexeme}'");
+					throw new Exception($"Ожидался тип данных int или double, но отсканировано '{_token.Lexeme}': {_token.Value}");
 				}
 			}
 			else
 			{
-				throw new Exception($"Ожидалось ключевое слово 'const', но отсканировано '{_token.Lexeme}'");
+				throw new Exception($"Ожидалось ключевое слово 'const', но отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
 		}
 
@@ -496,7 +496,7 @@ namespace SynaxAnalyzer
 			}
 			else
 			{
-				throw new Exception($"Не был достигнут конец файла, отсканировано '{_token.Lexeme}'");
+				throw new Exception($"Не был достигнут конец файла, отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
 		}
 
@@ -527,7 +527,7 @@ namespace SynaxAnalyzer
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme != Lexemes.TypeSemicolon)
 				{
-					throw new Exception($"Ожидался символ ';', но отсканировано '{_token.Lexeme}'");
+					throw new Exception($"Ожидался символ ';', но отсканировано '{_token.Lexeme}': {_token.Value}");
 				}
 			}
 			else if (_token.Lexeme == Lexemes.TypeIdentifier)
@@ -546,13 +546,13 @@ namespace SynaxAnalyzer
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme != Lexemes.TypeSemicolon)
 				{
-					throw new Exception($"Ожидался символ ';', но отсканировано '{_token.Lexeme}'");
+					throw new Exception($"Ожидался символ ';', но отсканировано '{_token.Lexeme}': {_token.Value}");
 				}
 			}
 			else
 			{
 				throw new Exception($"Ожидалось ключевое слово 'while', 'return' или идентификатор," +
-					$" но отсканировано '{_token.Lexeme}'");
+					$" но отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
 		}
 
@@ -565,7 +565,7 @@ namespace SynaxAnalyzer
 			}
 			else
 			{
-				throw new Exception($"Ожидался оператор return, но отсканировано {_token.Lexeme}");
+				throw new Exception($"Ожидался оператор return, но отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
 		}
 
@@ -597,17 +597,17 @@ namespace SynaxAnalyzer
 					}
 					else
 					{
-						throw new Exception($"Ожидался символ ')', но отсканировано '{_token.Lexeme}'");
+						throw new Exception($"Ожидался символ ')', но отсканировано '{_token.Lexeme}': {_token.Value}");
 					}
 				}
 				else
 				{
-					throw new Exception($"Ожидался символ '(', но отсканировано '{_token.Lexeme}'");
+					throw new Exception($"Ожидался символ '(', но отсканировано '{_token.Lexeme}': {_token.Value}");
 				}
 			}
 			else
 			{
-				throw new Exception($"Ожидалось ключевое слово 'while', но отсканировано '{_token.Lexeme}'");
+				throw new Exception($"Ожидалось ключевое слово 'while', но отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
 		}
 

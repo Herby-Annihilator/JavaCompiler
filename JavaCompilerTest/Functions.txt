@@ -34,7 +34,7 @@ class Main
 			{
 				int pp() {return 7;}
 			}
-			int innerFunction() {return 1;}
+			int innerFunction() {int mm, dd = 7; return 1;}
 
 		}
 	}
