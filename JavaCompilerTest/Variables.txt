@@ -4,6 +4,7 @@
 
 class Main
 {
-	int a = 5, b = seven(), c, d;
+	int a = 5, b = seven(), c, d; int n = 10 + 15;
 	double f = 5 / 7, g = 8 * 10;
+	double z = three() / four() + 5, v = 15.4;
 }

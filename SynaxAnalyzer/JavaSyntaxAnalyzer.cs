@@ -137,6 +137,10 @@ namespace SynaxAnalyzer
 				{
 					DataDescription();
 				}
+				else if (IsItFunctionDescription())
+				{
+					FunctionDescription();
+				}
 				else
 				{
 					position = _lexer.Position;
@@ -507,7 +511,6 @@ namespace SynaxAnalyzer
 			} while (_token.Lexeme == Lexemes.TypeDiv || _token.Lexeme == Lexemes.TypeMult || _token.Lexeme == Lexemes.TypeMod);
 			_lexer.Position = position;
 		}
-
 		public void SimpleOperator()
 		{
 			int position = _lexer.Position;

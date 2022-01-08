@@ -14,12 +14,11 @@ namespace JavaCompilerTest
 		{
 			try
 			{
-				FileStream stream = new FileStream(@"D:\GarbageCan\Projects\JavaCompiler\JavaCompilerTest\Variables.txt", FileMode.Open, FileAccess.Read);
+				FileStream stream = new FileStream(@"D:\GarbageCan\Projects\JavaCompiler\JavaCompilerTest\Functions.txt", FileMode.Open, FileAccess.Read);
 				JavaLexer lexer = new JavaLexer();
 				lexer.Text = StreamToString(stream);
 				stream.Close();
 				Token token;
-
 				JavaSyntaxAnalyzer analyzer = new JavaSyntaxAnalyzer(lexer);
 				analyzer.Program();
 				Console.WriteLine("Ошибок не выявлено");
@@ -43,6 +42,19 @@ namespace JavaCompilerTest
 				builder.Append(symbol);
 			}
 			return builder.ToString();
+		}
+
+		private class f
+		{
+			int three()
+			{
+				int two()
+				{
+					int one() { return 1; }
+					return 2;
+				}
+				return 3;
+			}
 		}
 	}
 }
