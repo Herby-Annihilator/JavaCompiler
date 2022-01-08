@@ -1,5 +1,6 @@
 ﻿using Compiler;
 using Lexer;
+using SynaxAnalyzer;
 using System;
 using System.IO;
 using System.Text;
@@ -15,21 +16,12 @@ namespace JavaCompilerTest
 				FileStream stream = new FileStream(@"D:\GarbageCan\Projects\JavaCompiler\JavaCompilerTest\javaCode.txt", FileMode.Open, FileAccess.Read);
 				JavaLexer lexer = new JavaLexer();
 				lexer.Text = StreamToString(stream);
+				stream.Close();
 				Token token;
 
-				while ((token = lexer.GetNextToken()).Lexeme != Lexemes.TypeEnd)
-				{
-					if (token.Lexeme == Lexemes.TypeError)
-					{
-						Console.WriteLine($"Ошибка лексера: '{token.Value}'");
-					}
-					else
-					{
-						Console.WriteLine($"Отсканирована лексема: '{token.Value}'");
-					}
-				}
-
-				stream.Close();
+				JavaSyntaxAnalyzer analyzer = new JavaSyntaxAnalyzer(lexer);
+				analyzer.Program();
+				Console.WriteLine("Ошибок не выявлено");
 			}
 			catch(Exception e)
 			{
