@@ -1,0 +1,41 @@
+/*
+	Различные описания функций
+*/
+
+class Main
+{
+	int main() { }
+
+	int rec()
+	{
+		return rec();
+	}
+
+	double func()
+	{
+		return 10 / 5;
+	}
+
+	int three()
+	{
+		int two()
+		{
+			int one() { return 1; }
+			return 2;
+		}
+		return 3;
+	}
+
+	int whileFunction()
+	{
+		while (1)
+		{
+			class p
+			{
+				int pp() {return 7;}
+			}
+			int innerFunction() {return 1;}
+
+		}
+	}
+}
