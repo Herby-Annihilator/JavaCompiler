@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Compiler
 {
-	public enum  SemanticTypes
+	public enum  NameCategory
 	{
 		Variable,  // a, b, c
-		VariableType,  // int, double
+		SimpleType,  // int, double
 
 		ClassObject,   // Human h = new Human(); // h is object
 		ClassType,   // Human is type
