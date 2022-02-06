@@ -35,29 +35,29 @@ namespace Compiler
             _rightChild = new SemanticTree(this, null, null, data);
         }
 
-        public SemanticTree FindUp(SemanticTree startVertex, Lexemes lexeme)
+        public SemanticTree FindUp(SemanticTree startVertex, string lexemeImage)
         {
             SemanticTree tree = startVertex;
-            while ((tree != null) && (lexeme != _data.Lexeme))
+            while ((tree != null) && (lexemeImage != _data.LexemeImage))
             {
                 tree = tree._parent;
             }
             return tree;
         }
 
-        public SemanticTree FindUp(Lexemes lexeme) => FindUp(this, lexeme);
+        public SemanticTree FindUp(string lexemeImage) => FindUp(this, lexemeImage);
 
-        public SemanticTree FindRightLeft(SemanticTree startVertex, Lexemes lexeme)
+        public SemanticTree FindRightLeft(SemanticTree startVertex, string lexemeImage)
         {
             SemanticTree right = startVertex._rightChild;
-            while ((right != null) && (lexeme != right._data.Lexeme))
+            while ((right != null) && (lexemeImage != right._data.LexemeImage))
             {
                 right = right._leftChild;
             }
             return right;
         }
 
-        public SemanticTree FindRightLeft(Lexemes lexeme) => FindRightLeft(this, lexeme); 
+        public SemanticTree FindRightLeft(string lexemeImage) => FindRightLeft(this, lexemeImage); 
 
         public SemanticTree FindVertexWithEqualLexemeOnOneLevel(SemanticTree vertexFrom, string lexemeImage)
         {
