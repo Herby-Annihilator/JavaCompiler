@@ -11,7 +11,7 @@ namespace Compiler
         private SemanticTree _parent;
         private SemanticTree _leftChild;
         private SemanticTree _rightChild;
-        private Node _data;
+        public Node Data { get; set; }
 
         public SemanticTree CurrentVertex { get; set; }
 
@@ -22,7 +22,7 @@ namespace Compiler
             _parent = parent;
             _leftChild = leftChild;
             _rightChild = rightChild;
-            _data = data;
+            Data = data;
             CurrentVertex = this;
         }
 
@@ -40,7 +40,7 @@ namespace Compiler
         public SemanticTree FindUp(SemanticTree startVertex, string lexemeImage)
         {
             SemanticTree tree = startVertex;
-            while ((tree != null) && (lexemeImage != _data.LexemeImage))
+            while ((tree != null) && (lexemeImage != Data.LexemeImage))
             {
                 tree = tree._parent;
             }
@@ -52,7 +52,7 @@ namespace Compiler
         public SemanticTree FindRightLeft(SemanticTree startVertex, string lexemeImage)
         {
             SemanticTree right = startVertex._rightChild;
-            while ((right != null) && (lexemeImage != right._data.LexemeImage))
+            while ((right != null) && (lexemeImage != right.Data.LexemeImage))
             {
                 right = right._leftChild;
             }
@@ -66,7 +66,7 @@ namespace Compiler
             SemanticTree tree = vertexFrom;
             while ((tree != null) && (tree._parent?._rightChild != tree))
             {
-                if (tree._data.LexemeImage == lexemeImage)
+                if (tree.Data.LexemeImage == lexemeImage)
                     return tree;
                 tree = tree._parent;
             }

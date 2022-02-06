@@ -373,13 +373,31 @@ namespace SynaxAnalyzer
 
 		public void FunctionDescription()
 		{
+			SemanticTree toReturn;
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme == Lexemes.TypeDataDouble || _token.Lexeme == Lexemes.TypeDataInt)
 			{
-				
+				// \*************семантика*************/
+
+				int type = -1;
+				if (_token.Lexeme == Lexemes.TypeDataDouble)
+				{
+					type = _dataTypesTable.DoubleType;
+				}
+				else if (_token.Lexeme == Lexemes.TypeDataInt)
+				{
+					type = _dataTypesTable.DoubleType;
+				}
+
+				// /*************семантика*************\
+
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme == Lexemes.TypeIdentifier)
 				{
+					// \*************семантика*************/
+					toReturn = _table.IncludeLexeme(_token.Value, LexemeImageCategory.Function);
+					toReturn.Data.DataType = type;
+					// /*************семантика*************\
 					_token = _lexer.GetNextToken();
 					if (_token.Lexeme == Lexemes.TypeOpenParenthesis)
 					{
@@ -407,6 +425,8 @@ namespace SynaxAnalyzer
 			{
 				throw new Exception($"Ожидался тип данных int или double, но отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
+			// возврат
+			_table.CurrentVertex = toReturn;
 		}
 
 		public void Name()

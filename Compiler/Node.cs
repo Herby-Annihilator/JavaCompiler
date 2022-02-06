@@ -37,7 +37,7 @@ namespace Compiler
         public bool IsConstant { get; set; } 
 
         /// <summary>
-        /// Тип данных лексемы из таблицы DataTypesTable. Если int a = 10, то DataType == int
+        /// Тип данных лексемы из таблицы DataTypesTable. Если int a = 10, то DataType == int (значение 0)
         /// </summary>
         public int DataType { get; set; }
         #endregion
