@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Compiler
 {
-	public enum  NameCategory
+	public enum  LexemeImageCategory
 	{
 		Variable,  // a, b, c
 		SimpleType,  // int, double
@@ -22,7 +22,7 @@ namespace Compiler
 		StructType,
 
 		ArrayObject,  // int[] a; // a is object
-		ArrayType,  // int[], double[], ...
+		ArrayType,  // int, double, ...
 
 		Label  // start:
 	}
