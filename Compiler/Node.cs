@@ -35,6 +35,11 @@ namespace Compiler
         /// Флаг константы, например, const int a = 10, тогда LexemeImage = а, LexemeValue = 10, IsConstant = true. Чаще всего false
         /// </summary>
         public bool IsConstant { get; set; } 
+
+        /// <summary>
+        /// Тип данных лексемы из таблицы DataTypesTable. Если int a = 10, то DataType == int
+        /// </summary>
+        public int DataType { get; set; }
         #endregion
 
         public Node Clone()

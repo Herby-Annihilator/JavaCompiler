@@ -12,6 +12,7 @@ namespace Compiler
         private SemanticTree _leftChild;
         private SemanticTree _rightChild;
         private Node _data;
+
         public SemanticTree CurrentVertex { get; set; }
 
 
@@ -22,6 +23,7 @@ namespace Compiler
             _leftChild = leftChild;
             _rightChild = rightChild;
             _data = data;
+            CurrentVertex = this;
         }
 
         public void AddDataToLeft(Node data)

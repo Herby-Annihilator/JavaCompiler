@@ -11,15 +11,19 @@ namespace SynaxAnalyzer
 	{
 		private ILexer _lexer;
 		private Token _token;
+		private SemanticTree _table;
+		private DataTypesTable _dataTypesTable;
 
 		public JavaSyntaxAnalyzer(ILexer lexer)
 		{
 			_lexer = lexer;
+			_table = new SemanticTree(null, null, null, null);
 		}
 
 		public JavaSyntaxAnalyzer(ILexer lexer, string text)
 		{
 			_lexer = lexer;
+			_table = new SemanticTree(null, null, null, null);
 			_lexer.Text = text;
 		}
 
@@ -83,6 +87,11 @@ namespace SynaxAnalyzer
 			{
 				throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
+			// \*************семантика*************/
+
+			SemanticTree toReturn = _table.CurrentVertex.IncludeLexeme(_token.Value, LexemeImageCategory.ClassObject);
+
+			// /*************семантика*************\
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme != Lexemes.TypeOpenCurlyBrace)
 			{
@@ -92,6 +101,11 @@ namespace SynaxAnalyzer
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme == Lexemes.TypeCloseCurlyBrace)
 			{
+				// \*************семантика*************/
+
+				_table.CurrentVertex = toReturn; // возврат
+
+				// /*************семантика*************\
 				return;
 			}
 			else
@@ -104,6 +118,11 @@ namespace SynaxAnalyzer
 					throw new Exception("Ожидался символ '}', но отсканировано '" + _token.Lexeme + "': " + _token.Value);
 				}
 			}
+			// \*************семантика*************/
+
+			_table.CurrentVertex = toReturn;  // возврат
+
+			// /*************семантика*************\
 		}
 
 		public void CompoundOperator()
@@ -357,6 +376,7 @@ namespace SynaxAnalyzer
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme == Lexemes.TypeDataDouble || _token.Lexeme == Lexemes.TypeDataInt)
 			{
+				
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme == Lexemes.TypeIdentifier)
 				{
