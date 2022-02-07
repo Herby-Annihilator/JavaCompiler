@@ -91,7 +91,7 @@ namespace Compiler
                 CurrentVertex._leftChild = vertex;  // привязали его как левого потомка
                 vertex._rightChild = new SemanticTree(vertex, null, null, null);  // сразу создали путого правого потомка
                 CurrentVertex = vertex._rightChild; // текущий указатель "внутри класса"
-                return vertex;  // вернули адрес возврата. Предусмотреть стэк в синтаксическом анализаторе
+                return vertex;  // вернули адрес возврата
             }
             else if (category == LexemeImageCategory.Function)
             {
@@ -100,7 +100,7 @@ namespace Compiler
                 CurrentVertex._leftChild = vertex;  // привязали его как левого потомка
                 vertex._rightChild = new SemanticTree(vertex, null, null, null);  // сразу создали путого правого потомка
                 CurrentVertex = vertex._rightChild; // текущий указатель "внутри класса"
-                return vertex;  // вернули адрес возврата. Предусмотреть стэк в синтаксическом анализаторе
+                return vertex;  // вернули адрес возврата
             }
             else
             {
@@ -117,6 +117,47 @@ namespace Compiler
             if (FindVertexWithEqualLexemeOnOneLevel(blockVertex, lexemeImage) == null)
                 return false;
             return true;
+        }
+
+        public SemanticTree IncludeCompoundOperator()
+        {
+            SemanticTree vertex = new SemanticTree(CurrentVertex, null, null, null);
+            vertex._rightChild = new SemanticTree(vertex, null, null, null);
+            CurrentVertex._leftChild = vertex;
+            CurrentVertex = vertex._rightChild;
+            return vertex;
+        }
+
+        public SemanticTree IncludeConstant(string lexemeImage, int dataType, string lexemeValue = null)
+        {
+            Node data = new Node() { Category = LexemeImageCategory.Constant, IsConstant = true, DataType = dataType,
+                Lexeme = Lexemes.TypeIdentifier, LexemeImage = lexemeImage, LexemeValue = lexemeValue };
+            SemanticTree vertex = new SemanticTree(CurrentVertex, null, null, data);
+            CurrentVertex._leftChild = vertex;
+            CurrentVertex = vertex;
+            return CurrentVertex;
+        }
+
+        public SemanticTree IncludeVariable(string lexemeImage, int dataType, string lexemeValue = null)
+        {
+            Node data = new Node()
+            {
+                Category = LexemeImageCategory.Variable,
+                IsConstant = false,
+                DataType = dataType,
+                Lexeme = Lexemes.TypeIdentifier,
+                LexemeImage = lexemeImage,
+                LexemeValue = lexemeValue
+            };
+            SemanticTree vertex = new SemanticTree(CurrentVertex, null, null, data);
+            CurrentVertex._leftChild = vertex;
+            CurrentVertex = vertex;
+            return CurrentVertex;
+        }
+
+        public void SetLexemeValue(SemanticTree vertex, string value)
+        {
+            vertex.Data.LexemeValue = value;
         }
 
         #endregion

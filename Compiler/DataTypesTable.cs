@@ -8,35 +8,29 @@ namespace Compiler
 {
     public class DataTypesTable
     {
-        private List<int> _types;
-        private int _nextTypeIndex;
-
         public int IntegerType { get; private set; } = 0;
         public int DoubleType { get; private set; } = 1;
-        public int VoidType { get; private set; } = 2;
 
-        public DataTypesTable()
+        public int BoolType { get; private set; } = 2;
+
+        public int UndefType { get; private set; } = 1000;
+
+        public int MixTypes(int type1, int type2)
         {
-            _types = new List<int>();
-            _types.Add(IntegerType);
-            _types.Add(DoubleType);
-            _types.Add(VoidType);
-
-            _nextTypeIndex = _types.Count;
+            if (type1 == UndefType || type2 == UndefType)
+                return UndefType;
+            if (type1 == IntegerType && type2 == IntegerType)
+                return IntegerType;
+            if (type1 == DoubleType || type2 == DoubleType)
+                return DoubleType;
+            return UndefType;
         }
 
-        public int AddType()
+        public bool CheckTypesCompatibility(int leftType, int rightType)
         {
-            _types.Add(_nextTypeIndex);
-            _nextTypeIndex++;
-            return _types[_nextTypeIndex - 1];
+            if (leftType == IntegerType && rightType == DoubleType)
+                return false;
+            return true;
         }
-
-        public void RemoveType(int type)
-        {
-            _types.Remove(type);
-        }
-
-        public bool Contains(int type) => _types.Contains(type);
     }
 }
