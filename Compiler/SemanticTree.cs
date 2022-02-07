@@ -130,6 +130,10 @@ namespace Compiler
 
         public SemanticTree IncludeConstant(string lexemeImage, int dataType, string lexemeValue = null)
         {
+            if (IsLexemeRepeatsInBlock(CurrentVertex, lexemeImage))
+            {
+                throw new Exception($"Константа '{lexemeImage}' уже была описана ранее");
+            }
             Node data = new Node() { Category = LexemeImageCategory.Constant, IsConstant = true, DataType = dataType,
                 Lexeme = Lexemes.TypeIdentifier, LexemeImage = lexemeImage, LexemeValue = lexemeValue };
             SemanticTree vertex = new SemanticTree(CurrentVertex, null, null, data);
@@ -140,6 +144,10 @@ namespace Compiler
 
         public SemanticTree IncludeVariable(string lexemeImage, int dataType, string lexemeValue = null)
         {
+            if (IsLexemeRepeatsInBlock(CurrentVertex, lexemeImage))
+            {
+                throw new Exception($"Переменная '{lexemeImage}' уже была описана ранее");
+            }
             Node data = new Node()
             {
                 Category = LexemeImageCategory.Variable,

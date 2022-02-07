@@ -32,5 +32,38 @@ namespace Compiler
                 return false;
             return true;
         }
+
+        public int OperationResultType(int type1, int type2)
+        {
+            if (type1 == UndefType || type2 == UndefType)
+                throw new Exception("Невозможно использовать арифметическую операцию с неопределенным типом");
+            if (type1 == BoolType || type2 == BoolType)
+                throw new Exception("Невозможно использовать арифметическую операцию с логическим типом");
+            if (type1 == DoubleType || type2 == DoubleType)
+                return DoubleType;
+            return type1;
+        }
+
+        public bool CanTwoTypesBeCompared(int leftType, int rightType, Lexemes comparingOperation)
+        {
+            if (leftType == UndefType || rightType == UndefType)
+                return false;
+            if (comparingOperation == Lexemes.TypeEqualSign || comparingOperation == Lexemes.TypeNotEqualSign)
+                return true;
+            if (comparingOperation == Lexemes.TypeLessOrEqualSign
+                || comparingOperation == Lexemes.TypeMoreOrEqualSign
+                || comparingOperation == Lexemes.TypeMoreSign
+                || comparingOperation == Lexemes.TypeLessSign)
+            {
+                if (leftType == BoolType || rightType == BoolType)
+                    return false;
+                else
+                    return true;
+            }
+            else
+            {
+                throw new Exception($"Недопустимая лексема {comparingOperation} в качестве логической операции");
+            }
+        }
     }
 }

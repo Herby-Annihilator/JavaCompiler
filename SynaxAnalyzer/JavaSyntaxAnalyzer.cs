@@ -27,23 +27,21 @@ namespace SynaxAnalyzer
 			_lexer.Text = text;
 		}
 
-		public void Analyze()
-		{
-			try
-			{
-				Program();
-			}
-			catch (Exception e)
-			{
-				// todo
-			}
-		}
-
 		public void AssignmentOperator(out int operatorReturnType)
 		{
+			SemanticTree obj;
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme == Lexemes.TypeIdentifier)
 			{
+				obj = _table.FindUp(_table.CurrentVertex, _token.Value);
+				if (obj == null)
+                {
+					throw new Exception($"Идентификатор {_token.Value} ни разу не описан");
+                }
+				else if (obj.Data.Category != LexemeImageCategory.Variable)
+                {
+					throw new Exception($"Идентификатор {_token.Value} не является переменной");
+				}
 				while (true)
 				{
 					_token = _lexer.GetNextToken();
@@ -52,6 +50,15 @@ namespace SynaxAnalyzer
 						_token = _lexer.GetNextToken();
 						if (_token.Lexeme == Lexemes.TypeIdentifier)
 						{
+							obj = _table.FindRightLeft(obj, _token.Value);
+							if (obj == null)
+							{
+								throw new Exception($"Идентификатор {_token.Value} ни разу не описан");
+							}
+							else if (obj.Data.Category != LexemeImageCategory.Variable)
+							{
+								throw new Exception($"Идентификатор {_token.Value} не является переменной");
+							}
 							continue;
 						}
 						else
@@ -62,6 +69,10 @@ namespace SynaxAnalyzer
 					else if (_token.Lexeme == Lexemes.TypeAssignmentSign)
 					{
 						Expression(out operatorReturnType);
+						if (obj.Data.DataType != operatorReturnType)
+                        {
+							throw new Exception($"Нельзя присвоить переменной типа {obj.Data.DataType} значение типа {operatorReturnType}");
+                        }
 					}
 					else
 					{
@@ -294,14 +305,34 @@ namespace SynaxAnalyzer
 		public void Expression(out int dataType)
 		{
 			int position = _lexer.Position;
+			bool shouldSetBool = false;
+			Lexemes operation = Lexemes.TypeAssignmentSign;
+			int previousType = -1;
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme != Lexemes.TypePlus && _token.Lexeme != Lexemes.TypeMinus)
 				_lexer.Position = position;
 			do
 			{
 				FirstLevel(out dataType);
+				if (shouldSetBool)
+                {
+					if (_dataTypesTable.CanTwoTypesBeCompared(previousType, dataType, operation))
+                    {
+						dataType = _dataTypesTable.BoolType;
+					}
+                    else
+                    {
+						throw new Exception($"Недопустимое сравнение типов");
+                    }
+                }
+				shouldSetBool = true;
+				previousType = dataType;
+
 				position = _lexer.Position;
 				_token = _lexer.GetNextToken();
+
+				operation = _token.Lexeme;
+
 			} while (_token.Lexeme == Lexemes.TypeMoreOrEqualSign || _token.Lexeme == Lexemes.TypeMoreSign
 			|| _token.Lexeme == Lexemes.TypeLessOrEqualSign || _token.Lexeme == Lexemes.TypeLessSign
 			|| _token.Lexeme == Lexemes.TypeEqualSign || _token.Lexeme == Lexemes.TypeNotEqualSign);
@@ -352,9 +383,19 @@ namespace SynaxAnalyzer
 		public void FirstLevel(out int dataType)
 		{
 			int position;
+			int previousDataType = -1;
+			bool shouldCheck = false;
 			do
 			{
 				SecondLevel(out dataType);
+				// проверка на допустимость и вычисление типа результата операции
+				if (shouldCheck)
+                {
+					dataType = _dataTypesTable.OperationResultType(dataType, previousDataType);
+                }
+				shouldCheck = true;
+				previousDataType = dataType;
+
 				position = _lexer.Position;
 				_token = _lexer.GetNextToken();
 			} while (_token.Lexeme == Lexemes.TypePlus || _token.Lexeme == Lexemes.TypeMinus);
@@ -371,6 +412,14 @@ namespace SynaxAnalyzer
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme == Lexemes.TypeIncrement || _token.Lexeme == Lexemes.TypeDecrement)
 				{
+					if (dataType == _dataTypesTable.UndefType)
+                    {
+						throw new Exception($"Нельзя производить операции инкремента или декремента над неопределнным типом");
+                    }
+					else if (dataType == _dataTypesTable.BoolType)
+                    {
+						throw new Exception($"Нельзя производить операции инкремента или декремента над логическим типом");
+					}
 					continue;
 				}
 				else
@@ -657,9 +706,19 @@ namespace SynaxAnalyzer
 		public void SecondLevel(out int dataType)
 		{
 			int position;
+			int previousDataType = -1;
+			bool shouldCheck = false;
 			do
 			{
 				ThirdLevel(out dataType);
+				// проверка на допустимость и вычисление типа результата операции
+				if (shouldCheck)
+                {
+					dataType = _dataTypesTable.OperationResultType(dataType, previousDataType);
+                }
+				shouldCheck = true;
+				previousDataType = dataType;
+
 				position = _lexer.Position;
 				_token = _lexer.GetNextToken();
 			} while (_token.Lexeme == Lexemes.TypeDiv || _token.Lexeme == Lexemes.TypeMult || _token.Lexeme == Lexemes.TypeMod);
@@ -727,13 +786,27 @@ namespace SynaxAnalyzer
 		public void ThirdLevel(out int dataType)
 		{
 			int position;
+			int precrementsCount = -1; // чтобы определить, нужно ли проверять допустимость операций прекремента
 			do
 			{
+				precrementsCount++;
 				position = _lexer.Position;
 				_token = _lexer.GetNextToken();
 			} while (_token.Lexeme == Lexemes.TypeDecrement || _token.Lexeme == Lexemes.TypeIncrement);
 			_lexer.Position = position;
 			FourthLevel(out dataType);
+			// проверка допустимости операций
+			if (precrementsCount > 0)
+            {
+				if (dataType == _dataTypesTable.UndefType)
+                {
+					throw new Exception($"Нельзя осуществить операцию прекремента для неопределенного типа");
+                }
+				if (dataType == _dataTypesTable.BoolType)
+                {
+					throw new Exception($"Нельзя осуществить операцию прекремента для логического типа");
+				}
+            }
 		}
 
 		public void WhileCycle()
