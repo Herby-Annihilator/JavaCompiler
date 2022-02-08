@@ -763,11 +763,16 @@ namespace SynaxAnalyzer
 					_lexer.Position = position;
 					FunctionCall(out operatorReturnType);					
 				}
-				else
+				else if (_token.Lexeme == Lexemes.TypeAssignmentSign)
 				{
 					_lexer.Position = position;
 					AssignmentOperator(out operatorReturnType);
 				}
+                else
+                {
+					_lexer.Position = position;
+					Expression(out operatorReturnType);
+                }
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme != Lexemes.TypeSemicolon)
 				{

@@ -86,6 +86,7 @@ namespace Compiler
             SemanticTree vertex;
             if (category == LexemeImageCategory.ClassType)
             {
+
                 data = new Node() { LexemeImage = lexemeImage, Category = category, Lexeme = Lexemes.TypeClass};
                 vertex = new SemanticTree(CurrentVertex, null, null, data);  // создали левого потомка с именем класса
                 CurrentVertex._leftChild = vertex;  // привязали его как левого потомка

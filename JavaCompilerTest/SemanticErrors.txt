@@ -6,7 +6,7 @@ class Main
 {
 	//int a = 9.3;  // ошибка (работает)
 
-	int main()
+	/*int main()
 	{
 		double a = 5, b, c;
 		b = a / 3;
@@ -14,12 +14,31 @@ class Main
 		//int d = a + b * c;  // попытка присвоить double переменной типа int    +
 		//return 9.2;  // несогласованность возвращаемых типов    +
 		return 0;
-	}
+	}*/
 
-	double func()
+	/*double func()   // повторное описание
 	{
 		int a = 5, b = 7;
 		return a / b;
+	}*/
+
+	int error()
+	{
+		int a = 5, b = 6;
+		c = a / b;
+		return c;
+	}
+
+	int func()  // повторное описание
+	{
+		int a = 5 + 6 / 3;
+		int b = 3;
+		while (a > b)
+		{
+			func();
+			a--;
+		}
+		return a + b;
 	}
 
 	class A
