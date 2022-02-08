@@ -1,0 +1,41 @@
+//
+// —емантические ошибки
+//
+
+class Main
+{
+	//int a = 9.3;  // ошибка (работает)
+
+	int main()
+	{
+		double a = 5, b, c;
+		b = a / 3;
+		c = a + b;
+		//int d = a + b * c;  // попытка присвоить double переменной типа int    +
+		//return 9.2;  // несогласованность возвращаемых типов    +
+		return 0;
+	}
+
+	double func()
+	{
+		int a = 5, b = 7;
+		return a / b;
+	}
+
+	class A
+	{
+	    class B
+	    {
+	        
+	    }
+	}
+	
+	class B
+	{
+	    class A
+	    {
+	        
+	    }
+	}
+
+}

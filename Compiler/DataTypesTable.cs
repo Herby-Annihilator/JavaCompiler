@@ -15,6 +15,15 @@ namespace Compiler
 
         public int UndefType { get; private set; } = 1000;
 
+        public string TypeToString(int type)
+        {
+            if (type == IntegerType) return "int";
+            if (type == DoubleType) return "double";
+            if (type == BoolType) return "bool";
+            if (type == UndefType) return "неопределенный тип";
+            return "";
+        }
+
         public int MixTypes(int type1, int type2)
         {
             if (type1 == UndefType || type2 == UndefType)

@@ -14,7 +14,7 @@ namespace JavaCompilerTest
 		{
 			try
 			{
-				FileStream stream = new FileStream(@"D:\GarbageCan\Projects\JavaCompiler\JavaCompilerTest\IncorrectVariables.txt", FileMode.Open, FileAccess.Read);
+				FileStream stream = new FileStream(@"C:\Users\Rukin\Projects\JavaCompiler\JavaCompilerTest\SemanticErrors.txt", FileMode.Open, FileAccess.Read);
 				JavaLexer lexer = new JavaLexer();
 				lexer.Text = StreamToString(stream);
 				stream.Close();

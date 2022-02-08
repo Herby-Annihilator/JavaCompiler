@@ -40,7 +40,7 @@ namespace Compiler
         public SemanticTree FindUp(SemanticTree startVertex, string lexemeImage)
         {
             SemanticTree tree = startVertex;
-            while ((tree != null) && (lexemeImage != Data.LexemeImage))
+            while ((tree != null) && (lexemeImage != tree.Data?.LexemeImage))
             {
                 tree = tree._parent;
             }
@@ -52,7 +52,7 @@ namespace Compiler
         public SemanticTree FindRightLeft(SemanticTree startVertex, string lexemeImage)
         {
             SemanticTree right = startVertex._rightChild;
-            while ((right != null) && (lexemeImage != right.Data.LexemeImage))
+            while ((right != null) && (lexemeImage != right.Data?.LexemeImage))
             {
                 right = right._leftChild;
             }
@@ -66,7 +66,7 @@ namespace Compiler
             SemanticTree tree = vertexFrom;
             while ((tree != null) && (tree._parent?._rightChild != tree))
             {
-                if (tree.Data.LexemeImage == lexemeImage)
+                if (tree.Data?.LexemeImage == lexemeImage)
                     return tree;
                 tree = tree._parent;
             }
@@ -161,11 +161,6 @@ namespace Compiler
             CurrentVertex._leftChild = vertex;
             CurrentVertex = vertex;
             return CurrentVertex;
-        }
-
-        public void SetLexemeValue(SemanticTree vertex, string value)
-        {
-            vertex.Data.LexemeValue = value;
         }
 
         #endregion

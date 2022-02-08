@@ -12,7 +12,7 @@ namespace SynaxAnalyzer
 		private ILexer _lexer;
 		private Token _token;
 		private SemanticTree _table;
-		private DataTypesTable _dataTypesTable;
+		private DataTypesTable _dataTypesTable = new DataTypesTable();
 
 		public JavaSyntaxAnalyzer(ILexer lexer)
 		{
@@ -73,6 +73,7 @@ namespace SynaxAnalyzer
                         {
 							throw new Exception($"Нельзя присвоить переменной типа {obj.Data.DataType} значение типа {operatorReturnType}");
                         }
+						break;
 					}
 					else
 					{
@@ -100,7 +101,7 @@ namespace SynaxAnalyzer
 			}
 			// \*************семантика*************/
 
-			SemanticTree toReturn = _table.CurrentVertex.IncludeLexeme(_token.Value, LexemeImageCategory.ClassObject);
+			SemanticTree toReturn = _table.CurrentVertex.IncludeLexeme(_token.Value, LexemeImageCategory.ClassType);
 
 			// /*************семантика*************\
 			_token = _lexer.GetNextToken();
@@ -229,7 +230,8 @@ namespace SynaxAnalyzer
 							Expression(out realType); // должно возвращать тип данных
 							if (!_dataTypesTable.CheckTypesCompatibility(type, realType))
                             {
-								throw new Exception($"Нельзя присвоить тип {realType} переменной типа {type}");
+								throw new Exception($"Нельзя присвоить тип {_dataTypesTable.TypeToString(realType)}" +
+									$" переменной типа {_dataTypesTable.TypeToString(type)}");
                             }
                             else
                             {
@@ -356,6 +358,13 @@ namespace SynaxAnalyzer
 			}
 			else if (_token.Lexeme == Lexemes.TypeIdentifier)
 			{
+				SemanticTree obj = _table.FindUp(_table.CurrentVertex, _token.Value);
+				if (obj == null)
+				{
+					throw new Exception($"Идентификатор {_token.Value} ни разу не описан");
+				}
+				dataType = obj.Data.DataType;
+
 				position1 = _lexer.Position;
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme == Lexemes.TypeDot)
@@ -485,7 +494,7 @@ namespace SynaxAnalyzer
 				}
 				else if (_token.Lexeme == Lexemes.TypeDataInt)
 				{
-					type = _dataTypesTable.DoubleType;
+					type = _dataTypesTable.IntegerType;
 				}
 
 				// /*************семантика*************\
@@ -510,7 +519,8 @@ namespace SynaxAnalyzer
                             }
                             else
                             {
-								throw new Exception($"Функция, возвращающая {type} не может возвращать тип {returningType}");
+								throw new Exception($"Функция, возвращающая {_dataTypesTable.TypeToString(type)} " +
+									$"не может возвращать тип {_dataTypesTable.TypeToString(returningType)}");
                             }
 						}
 						else
@@ -623,7 +633,8 @@ namespace SynaxAnalyzer
 									realType = _dataTypesTable.DoubleType;
 								if (realType != type)
                                 {
-									throw new Exception($"Нельзя присвоить тип {realType} константе типа {type}");
+									throw new Exception($"Нельзя присвоить тип {_dataTypesTable.TypeToString(realType)}" +
+										$" константе типа {_dataTypesTable.TypeToString(type)}");
                                 }
 								else
                                 {
