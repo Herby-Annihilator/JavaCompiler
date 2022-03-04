@@ -10,14 +10,16 @@ namespace Compiler
     {
         private SemanticTree _parent;
         private SemanticTree _leftChild;
-        private SemanticTree _rightChild;
-        public Node Data { get; set; }
+        private SemanticTree _rightChild;  // поле будет использоваться для хранения значения экземпляра пользовательского типа
+        public EntityData Data { get; set; }  // данные о сущности
+
+        public bool IsInterpret { get; set; } = false; // флаг интерпретации
 
         public SemanticTree CurrentVertex { get; set; }
 
 
         #region TreeMethods
-        public SemanticTree(SemanticTree parent, SemanticTree leftChild, SemanticTree rightChild, Node data)
+        public SemanticTree(SemanticTree parent, SemanticTree leftChild, SemanticTree rightChild, EntityData data)
         {
             _parent = parent;
             _leftChild = leftChild;
@@ -26,13 +28,13 @@ namespace Compiler
             CurrentVertex = this;
         }
 
-        public void AddDataToLeft(Node data)
+        public void AddDataToLeft(EntityData data)
         {
             _leftChild = new SemanticTree(this, null, null, data);
         }
 
 
-        public void AddDataToRight(Node data)
+        public void AddDataToRight(EntityData data)
         {
             _rightChild = new SemanticTree(this, null, null, data);
         }
@@ -82,12 +84,12 @@ namespace Compiler
             {
                 throw new Exception($"Лексема '{lexemeImage}' уже была описана ранее");
             }
-            Node data;
+            EntityData data;
             SemanticTree vertex;
             if (category == LexemeImageCategory.ClassType)
             {
 
-                data = new Node() { LexemeImage = lexemeImage, Category = category, Lexeme = Lexemes.TypeClass};
+                data = new EntityData() { LexemeImage = lexemeImage, Category = category, Lexeme = Lexemes.TypeClass};
                 vertex = new SemanticTree(CurrentVertex, null, null, data);  // создали левого потомка с именем класса
                 CurrentVertex._leftChild = vertex;  // привязали его как левого потомка
                 vertex._rightChild = new SemanticTree(vertex, null, null, null);  // сразу создали путого правого потомка
@@ -96,7 +98,7 @@ namespace Compiler
             }
             else if (category == LexemeImageCategory.Function)
             {
-                data = new Node() { LexemeImage = lexemeImage, Category = category, Lexeme = Lexemes.TypeIdentifier};
+                data = new EntityData() { LexemeImage = lexemeImage, Category = category, Lexeme = Lexemes.TypeIdentifier};
                 vertex = new SemanticTree(CurrentVertex, null, null, data);  // создали левого потомка с именем класса
                 CurrentVertex._leftChild = vertex;  // привязали его как левого потомка
                 vertex._rightChild = new SemanticTree(vertex, null, null, null);  // сразу создали путого правого потомка
@@ -105,7 +107,7 @@ namespace Compiler
             }
             else
             {
-                data = new Node() { LexemeImage = lexemeImage, Category = category, };
+                data = new EntityData() { LexemeImage = lexemeImage, Category = category, };
                 vertex = new SemanticTree(CurrentVertex, null, null, data);  // создали левого потомка с именем класса
                 CurrentVertex._leftChild = vertex;  // привязали его как левого потомка
                 CurrentVertex = vertex;
@@ -129,13 +131,13 @@ namespace Compiler
             return vertex;
         }
 
-        public SemanticTree IncludeConstant(string lexemeImage, int dataType, string lexemeValue = null)
+        public SemanticTree IncludeConstant(string lexemeImage, int dataType, LexemeValue lexemeValue = null)
         {
             if (IsLexemeRepeatsInBlock(CurrentVertex, lexemeImage))
             {
                 throw new Exception($"Константа '{lexemeImage}' уже была описана ранее");
             }
-            Node data = new Node() { Category = LexemeImageCategory.Constant, IsConstant = true, DataType = dataType,
+            EntityData data = new EntityData() { Category = LexemeImageCategory.Constant, IsConstant = true, DataType = dataType,
                 Lexeme = Lexemes.TypeIdentifier, LexemeImage = lexemeImage, LexemeValue = lexemeValue };
             SemanticTree vertex = new SemanticTree(CurrentVertex, null, null, data);
             CurrentVertex._leftChild = vertex;
@@ -143,13 +145,13 @@ namespace Compiler
             return CurrentVertex;
         }
 
-        public SemanticTree IncludeVariable(string lexemeImage, int dataType, string lexemeValue = null)
+        public SemanticTree IncludeVariable(string lexemeImage, int dataType, LexemeValue lexemeValue = null)
         {
             if (IsLexemeRepeatsInBlock(CurrentVertex, lexemeImage))
             {
                 throw new Exception($"Переменная '{lexemeImage}' уже была описана ранее");
             }
-            Node data = new Node()
+            EntityData data = new EntityData()
             {
                 Category = LexemeImageCategory.Variable,
                 IsConstant = false,

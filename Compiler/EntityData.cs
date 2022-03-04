@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Compiler
 {
-    public class Node
+    public class EntityData
     {
         #region Required
         /// <summary>
@@ -27,9 +27,9 @@ namespace Compiler
 
         #region Situational
         /// <summary>
-        /// Значение для переменных или констант, например, а = 10, тогда LexemeImage = а, LexemeValue = 10. Чаще всего это null
+        /// Значение для переменных или констант, например, а = 10, тогда LexemeImage = а, LexemeValue.IntegerValue = 10.
         /// </summary>
-        public string LexemeValue { get; set; }
+        public LexemeValue LexemeValue { get; set; }
 
         /// <summary>
         /// Флаг константы, например, const int a = 10, тогда LexemeImage = а, LexemeValue = 10, IsConstant = true. Чаще всего false
@@ -42,9 +42,9 @@ namespace Compiler
         public int DataType { get; set; }
         #endregion
 
-        public Node Clone()
+        public EntityData Clone()
         {
-            Node result = new Node();
+            EntityData result = new EntityData();
             result.Category = Category;
             result.LexemeImage = (string)LexemeImage.Clone();
             result.Lexeme = Lexeme;

@@ -628,18 +628,23 @@ namespace SynaxAnalyzer
 								// \*************семантика*************/
 								int realType = -1;
 								if (_token.Lexeme == Lexemes.TypeInt)
+                                {
 									realType = _dataTypesTable.IntegerType;
+									toReturn.Data.LexemeValue = new LexemeValue { IntegerValue = Convert.ToInt32(_token.Value) };
+								}
+									
 								if (_token.Lexeme == Lexemes.TypeDouble)
+                                {
 									realType = _dataTypesTable.DoubleType;
+									toReturn.Data.LexemeValue = new LexemeValue { DoubleValue = Convert.ToDouble(_token.Value) };
+								}
+									
 								if (realType != type)
                                 {
 									throw new Exception($"Нельзя присвоить тип {_dataTypesTable.TypeToString(realType)}" +
 										$" константе типа {_dataTypesTable.TypeToString(type)}");
                                 }
-								else
-                                {
-									toReturn.Data.LexemeValue = _token.Value;
-                                }
+
 								// \*************семантика*************/
 								_token = _lexer.GetNextToken();
 								if (_token.Lexeme != Lexemes.TypeSemicolon)
