@@ -35,11 +35,11 @@ namespace SynaxAnalyzer
 			{
 				obj = _table.FindUp(_table.CurrentVertex, _token.Value);
 				if (obj == null)
-                {
+			{
 					throw new Exception($"Идентификатор {_token.Value} ни разу не описан");
-                }
+			}
 				else if (obj.Data.Category != LexemeImageCategory.Variable)
-                {
+		{
 					throw new Exception($"Идентификатор {_token.Value} не является переменной");
 				}
 				while (true)
@@ -72,7 +72,7 @@ namespace SynaxAnalyzer
 						if (obj.Data.DataType != operatorReturnType)
                         {
 							throw new Exception($"Нельзя присвоить переменной типа {obj.Data.DataType} значение типа {operatorReturnType}");
-                        }
+					}
 						break;
 					}
 					else
@@ -516,9 +516,9 @@ namespace SynaxAnalyzer
 							if (_dataTypesTable.CheckTypesCompatibility(type, returningType))
                             {
 								toReturn.Data.DataType = _dataTypesTable.MixTypes(type, returningType);
-                            }
-                            else
-                            {
+						}
+						else
+						{
 								throw new Exception($"Функция, возвращающая {_dataTypesTable.TypeToString(type)} " +
 									$"не может возвращать тип {_dataTypesTable.TypeToString(returningType)}");
                             }
@@ -773,11 +773,11 @@ namespace SynaxAnalyzer
 					_lexer.Position = position;
 					AssignmentOperator(out operatorReturnType);
 				}
-                else
-                {
+				else
+				{
 					_lexer.Position = position;
 					Expression(out operatorReturnType);
-                }
+				}
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme != Lexemes.TypeSemicolon)
 				{
