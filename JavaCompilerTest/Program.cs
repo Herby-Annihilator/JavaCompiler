@@ -18,7 +18,6 @@ namespace JavaCompilerTest
 				JavaLexer lexer = new JavaLexer();
 				lexer.Text = StreamToString(stream);
 				stream.Close();
-				Token token;
 				JavaSyntaxAnalyzer analyzer = new JavaSyntaxAnalyzer(lexer);
 				analyzer.Program();
 				Console.WriteLine("Ошибок не выявлено");
@@ -42,20 +41,6 @@ namespace JavaCompilerTest
 				builder.Append(symbol);
 			}
 			return builder.ToString();
-		}
-
-		private class f
-		{
-			int three()
-			{
-				int two()
-				{
-					int one() { return 1; }
-
-					return 2;
-				}
-				return 3;
-			}
 		}
 	}
 }

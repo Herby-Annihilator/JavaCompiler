@@ -168,11 +168,13 @@ namespace Compiler
 
         #endregion
 
+        public void Print() => Print(0);
+
         /// <summary>
         /// Выводит структуру дерева на консоль. Только для отладки
         /// </summary>
         /// <param name="level"></param>
-        public void Print(int level)
+        protected void Print(int level)
         {
             for (int i = 0; i < level; i++)
             {

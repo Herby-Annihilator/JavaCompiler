@@ -35,11 +35,11 @@ namespace SynaxAnalyzer
 			{
 				obj = _table.FindUp(_table.CurrentVertex, _token.Value);
 				if (obj == null)
-			{
+				{
 					throw new Exception($"Идентификатор {_token.Value} ни разу не описан");
-			}
+				}
 				else if (obj.Data.Category != LexemeImageCategory.Variable)
-		{
+				{
 					throw new Exception($"Идентификатор {_token.Value} не является переменной");
 				}
 				while (true)
@@ -72,7 +72,7 @@ namespace SynaxAnalyzer
 						if (obj.Data.DataType != operatorReturnType)
                         {
 							throw new Exception($"Нельзя присвоить переменной типа {obj.Data.DataType} значение типа {operatorReturnType}");
-					}
+						}
 						break;
 					}
 					else
@@ -220,7 +220,10 @@ namespace SynaxAnalyzer
 					if (_token.Lexeme == Lexemes.TypeIdentifier)
 					{
 						// заносим в таблицу переменную
-						toSetValue = _table.IncludeVariable(_token.Value, type);  // значение пока неизвестно
+						toSetValue = _table.IncludeVariable(_token.Value, type);  // значение пока не известно
+
+						Console.WriteLine($"Выделение памяти для переменной {_token.Lexeme}. Дерево имеет вид:");
+						_table.Print();
 
 						_token = _lexer.GetNextToken();
 						if (_token.Lexeme == Lexemes.TypeComma)
@@ -516,9 +519,9 @@ namespace SynaxAnalyzer
 							if (_dataTypesTable.CheckTypesCompatibility(type, returningType))
                             {
 								toReturn.Data.DataType = _dataTypesTable.MixTypes(type, returningType);
-						}
-						else
-						{
+							}
+							else
+							{
 								throw new Exception($"Функция, возвращающая {_dataTypesTable.TypeToString(type)} " +
 									$"не может возвращать тип {_dataTypesTable.TypeToString(returningType)}");
                             }
@@ -617,6 +620,8 @@ namespace SynaxAnalyzer
                         else
                         {
 							toReturn = _table.IncludeConstant(_token.Value, type);
+							Console.WriteLine($"Процесс выделения памяти для константы '{_token.Value}'. Дерево имеет вид:");
+							_table.Print();
                         }
 						// \*************семантика*************/
 						_token = _lexer.GetNextToken();
