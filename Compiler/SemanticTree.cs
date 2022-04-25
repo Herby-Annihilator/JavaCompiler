@@ -167,5 +167,56 @@ namespace Compiler
         }
 
         #endregion
+
+        /// <summary>
+        /// Выводит структуру дерева на консоль. Только для отладки
+        /// </summary>
+        /// <param name="level"></param>
+        public void Print(int level)
+        {
+            for (int i = 0; i < level; i++)
+            {
+                Console.Write("\t");
+            }
+
+            switch (Data.Category)
+            {
+                case LexemeImageCategory.Constant:
+                    {
+                        Console.WriteLine($"Константа '{Data.LexemeImage}'");
+                        break;
+                    }
+                    case LexemeImageCategory.Variable:
+                    {
+                        Console.WriteLine($"Переменная '{Data.LexemeImage}'");
+                        break;
+                    }
+                case LexemeImageCategory.Function:
+                    {
+                        Console.WriteLine($"Функция '{Data.LexemeImage}'");
+                        break;
+                    }
+                case LexemeImageCategory.ClassType:
+                    {
+                        Console.WriteLine($"Описание класса '{Data.LexemeImage}'");
+                        break;
+                    }
+                case LexemeImageCategory.ClassObject:
+                    {
+                        Console.WriteLine($"Объект '{Data.LexemeImage}'");
+                        break;
+                    }
+                default:
+                    {
+                        Console.WriteLine("Пустой узел");
+                        break;
+                    }
+            }
+
+            if (_rightChild != null)
+                _rightChild.Print(level + 1);
+            if (_leftChild != null)
+                _leftChild.Print(level);
+        }
     }
 }

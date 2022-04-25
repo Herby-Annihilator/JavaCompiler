@@ -9,10 +9,10 @@ namespace SynaxAnalyzer
 {
 	public class JavaSyntaxAnalyzer
 	{
-		private ILexer _lexer;
-		private Token _token;
-		private SemanticTree _table;
-		private DataTypesTable _dataTypesTable = new DataTypesTable();
+		protected ILexer _lexer;
+		protected Token _token;
+		protected SemanticTree _table;
+		protected DataTypesTable _dataTypesTable = new DataTypesTable();
 
 		public JavaSyntaxAnalyzer(ILexer lexer)
 		{
@@ -868,7 +868,7 @@ namespace SynaxAnalyzer
 
 		#region CheckExpressions
 
-		private bool IsItFunctionDescription()
+		protected bool IsItFunctionDescription()
 		{
 			bool ok = false;
 			int position = _lexer.Position;
@@ -887,7 +887,7 @@ namespace SynaxAnalyzer
 			return ok;
 		}
 
-		private bool IsItClassDescription()
+		protected bool IsItClassDescription()
 		{
 			bool ok = false;
 			int position = _lexer.Position;
@@ -900,9 +900,9 @@ namespace SynaxAnalyzer
 			return ok;
 		}
 
-		private bool IsItDataDescription() => IsItData() || IsItNamedConstant();
+		protected bool IsItDataDescription() => IsItData() || IsItNamedConstant();
 
-		private bool IsItNamedConstant()
+		protected bool IsItNamedConstant()
 		{
 			bool ok = false;
 			int position = _lexer.Position;
@@ -913,7 +913,7 @@ namespace SynaxAnalyzer
 			return ok;
 		}
 
-		private bool IsItData()
+		protected bool IsItData()
 		{
 			bool ok = false;
 			int position = _lexer.Position;
@@ -936,7 +936,7 @@ namespace SynaxAnalyzer
 			return ok;
 		}
 
-		private bool IsItWhileCycle()
+		protected bool IsItWhileCycle()
 		{
 			bool ok = false;
 			int position = _lexer.Position;

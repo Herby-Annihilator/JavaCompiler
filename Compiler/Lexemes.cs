@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Compiler
 {
+	/// <summary>
+	/// Набор лексем языка, таких как точка, запятая, ключевые слова, и т.д.
+	/// </summary>
 	public enum Lexemes
 	{
 		TypeClass,
