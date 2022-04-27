@@ -74,6 +74,34 @@ namespace Compiler
             }
             return null;
         }
+        protected SemanticTree() { }
+        public SemanticTree Copy() => Copy(CurrentVertex);
+        public SemanticTree Copy(SemanticTree startNode, SemanticTree desiredParent = null)
+        {
+            if (startNode == null)
+                return null;
+            SemanticTree result = new SemanticTree();
+            result.Data = startNode.Data.Clone();
+            result.IsInterpret = startNode.IsInterpret;
+            result.CurrentVertex = startNode.CurrentVertex;
+            result._parent = desiredParent;
+            if (startNode._leftChild != null)
+                result._leftChild = startNode.Copy(startNode._leftChild, result);
+            if (startNode._rightChild != null)
+                result._rightChild = startNode.Copy(startNode._rightChild, result);
+            return result;
+        }
+
+        private SemanticTree Attach(SemanticTree node)
+        {
+            if (node == null)
+                return null;
+            if (node._leftChild != null)
+                node.Attach(node._leftChild);
+            if (node._rightChild != null)
+                node.Attach(node._rightChild);
+            return node;
+        }
         #endregion
 
         #region SemanticPrograms
