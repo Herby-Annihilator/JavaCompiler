@@ -138,7 +138,7 @@ namespace SynaxAnalyzer
 			// /*************семантика*************\
 		}
 
-		public void CompoundOperator(out int operatorReturnType)
+		public void CompoundOperator(out int operatorReturnType, bool isFunctionBody)
 		{
 			_token = _lexer.GetNextToken();
 			SemanticTree toReturn;
@@ -156,8 +156,14 @@ namespace SynaxAnalyzer
 					throw new Exception("Ожидался символ '}', но отсканировано '" + _token.Lexeme + "': " + _token.Value);
 				}
 				// \*************семантика*************/
-				_table.CurrentVertex = toReturn;  // возврат
-
+				_table.CurrentVertex = toReturn.Parent;  // возврат
+				if (!isFunctionBody)
+                {
+					_table.CurrentVertex.Left = null;
+					Console.WriteLine("Освобождение памяти после выхода из составного оператора. Дерево имеет вид:");
+					_table.Print();
+				}
+				
 				// /*************семантика*************\
 			}
 			else
@@ -191,12 +197,13 @@ namespace SynaxAnalyzer
 					if (_token.Lexeme == Lexemes.TypeCloseCurlyBrace)
 					{
 						_lexer.Position = position;
+
 						return;
 					}
 					else
 					{
 						_lexer.Position = position;
-						Operator(out operatorReturnType);
+						Operator(out operatorReturnType, false);
 					}
 				}
 			}
@@ -542,7 +549,7 @@ namespace SynaxAnalyzer
 						_token = _lexer.GetNextToken();
 						if (_token.Lexeme == Lexemes.TypeCloseParenthesis)
 						{
-							Operator(out returningType);
+							Operator(out returningType, true);
 							if (DataTypesTable.CheckTypesCompatibility(type, returningType))
                             {
 								toReturn.Data.DataType = DataTypesTable.MixTypes(type, returningType);
@@ -710,7 +717,7 @@ namespace SynaxAnalyzer
 			}
 		}
 
-		public void Operator(out int operatorReturnType)
+		public void Operator(out int operatorReturnType, bool isFinctionBody)
 		{
 			int position = _lexer.Position;
 			operatorReturnType = DataTypesTable.UndefType;
@@ -723,7 +730,7 @@ namespace SynaxAnalyzer
 			else if (_token.Lexeme == Lexemes.TypeOpenCurlyBrace)
 			{
 				_lexer.Position = position;
-				CompoundOperator(out operatorReturnType);
+				CompoundOperator(out operatorReturnType, isFinctionBody);
 			}
 			else
 			{
@@ -880,7 +887,7 @@ namespace SynaxAnalyzer
 					_token = _lexer.GetNextToken();
 					if (_token.Lexeme == Lexemes.TypeCloseParenthesis)
 					{
-						Operator(out int operatorReturnType);
+						Operator(out int operatorReturnType, false);
 					}
 					else
 					{

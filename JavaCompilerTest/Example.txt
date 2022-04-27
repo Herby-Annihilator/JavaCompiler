@@ -4,13 +4,16 @@ class Main
 	{
 		int a = 65;
 		double b = 7;
+		{ int a, b, c; }
 		return 8;
 	}
 
 	class Test
 	{
 		int a, b, c;
+		
 	}
 
 	Test testObject;
+	Test r;
 }

@@ -155,6 +155,7 @@ namespace Compiler
 
         public SemanticTree IncludeCompoundOperator()
         {
+            // надо вернуть не vertex, а его родителя, в месте, где эта функция вызывается это фиксится
             SemanticTree vertex = new SemanticTree(CurrentVertex, null, null, null);
             vertex._rightChild = new SemanticTree(vertex, null, null, null);
             CurrentVertex._leftChild = vertex;
