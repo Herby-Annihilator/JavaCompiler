@@ -6,27 +6,32 @@ using System.Threading.Tasks;
 
 namespace Compiler
 {
-    public class DataTypesTable
+    public static class DataTypesTable
     {
-        public int IntegerType { get; private set; } = 0;
-        public int DoubleType { get; private set; } = 1;
+        public static int IntegerType { get; private set; } = 0;
+        public static int DoubleType { get; private set; } = 1;
 
-        public int BoolType { get; private set; } = 2;
+        public static int BoolType { get; private set; } = 2;
 
-        public int UndefType { get; private set; } = 1000;
+        public static int UserType { get; private set; } = 3;
 
-        public string TypeToString(int type)
+        public static int UndefType { get; private set; } = 1000;
+
+        public static string TypeToString(int type)
         {
             if (type == IntegerType) return "int";
             if (type == DoubleType) return "double";
             if (type == BoolType) return "bool";
+            if (type == UserType) return "Пользовательский тип";
             if (type == UndefType) return "неопределенный тип";
             return "";
         }
 
-        public int MixTypes(int type1, int type2)
+        public static int MixTypes(int type1, int type2)
         {
             if (type1 == UndefType || type2 == UndefType)
+                return UndefType;
+            if (type1 == UserType || type2 == UserType)
                 return UndefType;
             if (type1 == IntegerType && type2 == IntegerType)
                 return IntegerType;
@@ -35,14 +40,16 @@ namespace Compiler
             return UndefType;
         }
 
-        public bool CheckTypesCompatibility(int leftType, int rightType)
+        public static bool CheckTypesCompatibility(int leftType, int rightType)
         {
             if (leftType == IntegerType && rightType == DoubleType)
+                return false;
+            if (leftType == UserType || rightType == UserType)
                 return false;
             return true;
         }
 
-        public int OperationResultType(int type1, int type2)
+        public static int OperationResultType(int type1, int type2)
         {
             if (type1 == UndefType || type2 == UndefType)
                 throw new Exception("Невозможно использовать арифметическую операцию с неопределенным типом");
@@ -53,7 +60,7 @@ namespace Compiler
             return type1;
         }
 
-        public bool CanTwoTypesBeCompared(int leftType, int rightType, Lexemes comparingOperation)
+        public static bool CanTwoTypesBeCompared(int leftType, int rightType, Lexemes comparingOperation)
         {
             if (leftType == UndefType || rightType == UndefType)
                 return false;

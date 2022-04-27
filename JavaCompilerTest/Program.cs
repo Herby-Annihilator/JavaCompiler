@@ -14,7 +14,7 @@ namespace JavaCompilerTest
 		{
 			try
 			{
-				FileStream stream = new FileStream(@"C:\Users\Rukin\Projects\JavaCompiler\JavaCompilerTest\SemanticErrors.txt", FileMode.Open, FileAccess.Read);
+				FileStream stream = new FileStream(@"C:\Users\Rukin\source\repos\JavaCompiler\JavaCompilerTest\Example.txt", FileMode.Open, FileAccess.Read);
 				JavaLexer lexer = new JavaLexer();
 				lexer.Text = StreamToString(stream);
 				stream.Close();
@@ -29,7 +29,6 @@ namespace JavaCompilerTest
 				Console.WriteLine("\\-----------------------------------------------/");
 			}
 		}
-
 
 		private static string StreamToString(FileStream stream)
 		{

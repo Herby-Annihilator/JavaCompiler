@@ -1,0 +1,22 @@
+class Main
+{
+	class B {
+		class A
+		{
+			class C{}
+		}
+	}
+
+	class D
+	{
+		
+	}
+
+	class V
+	{
+		class N {}
+	}
+	class Test { int a;}
+}
+
+

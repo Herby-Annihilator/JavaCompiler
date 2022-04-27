@@ -1,0 +1,16 @@
+class Main
+{
+	int func()
+	{
+		int a = 65;
+		double b = 7;
+		return 8;
+	}
+
+	class Test
+	{
+		int a, b, c;
+	}
+
+	Test testObject;
+}

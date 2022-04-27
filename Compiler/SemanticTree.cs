@@ -11,6 +11,11 @@ namespace Compiler
         private SemanticTree _parent;
         private SemanticTree _leftChild;
         private SemanticTree _rightChild;  // поле будет использоваться для хранения значения экземпляра пользовательского типа
+        
+        public SemanticTree Right { get => _rightChild; set => _rightChild = value; }
+        public SemanticTree Left { get => _leftChild; set => _leftChild = value; }
+        public SemanticTree Parent { get => _parent; set => _parent = value; }
+        
         public EntityData Data { get; set; }  // данные о сущности
 
         public bool IsInterpret { get; set; } = false; // флаг интерпретации
@@ -75,13 +80,23 @@ namespace Compiler
             return null;
         }
         protected SemanticTree() { }
-        public SemanticTree Copy() => Copy(CurrentVertex);
+        /// <summary>
+        /// Копирует семантическое дерево, начиная с текущего узла - т.е. вызывающего объекта.
+        /// </summary>
+        /// <returns></returns>
+        public SemanticTree Copy() => Copy(this);
+        /// <summary>
+        /// Полное копирование указанного дерева
+        /// </summary>
+        /// <param name="startNode">корень дерева, которое необходимо скопировать</param>
+        /// <param name="desiredParent">Родитель, которого необходимо присвоить копии</param>
+        /// <returns></returns>
         public SemanticTree Copy(SemanticTree startNode, SemanticTree desiredParent = null)
         {
             if (startNode == null)
                 return null;
             SemanticTree result = new SemanticTree();
-            result.Data = startNode.Data.Clone();
+            result.Data = startNode.Data?.Clone();
             result.IsInterpret = startNode.IsInterpret;
             result.CurrentVertex = startNode.CurrentVertex;
             result._parent = desiredParent;
@@ -90,17 +105,6 @@ namespace Compiler
             if (startNode._rightChild != null)
                 result._rightChild = startNode.Copy(startNode._rightChild, result);
             return result;
-        }
-
-        private SemanticTree Attach(SemanticTree node)
-        {
-            if (node == null)
-                return null;
-            if (node._leftChild != null)
-                node.Attach(node._leftChild);
-            if (node._rightChild != null)
-                node.Attach(node._rightChild);
-            return node;
         }
         #endregion
 
@@ -116,8 +120,7 @@ namespace Compiler
             SemanticTree vertex;
             if (category == LexemeImageCategory.ClassType)
             {
-
-                data = new EntityData() { LexemeImage = lexemeImage, Category = category, Lexeme = Lexemes.TypeClass};
+                data = new EntityData() { LexemeImage = lexemeImage, Category = category, Lexeme = Lexemes.TypeClass, DataType = DataTypesTable.UserType};
                 vertex = new SemanticTree(CurrentVertex, null, null, data);  // создали левого потомка с именем класса
                 CurrentVertex._leftChild = vertex;  // привязали его как левого потомка
                 vertex._rightChild = new SemanticTree(vertex, null, null, null);  // сразу создали путого правого потомка
@@ -127,7 +130,7 @@ namespace Compiler
             else if (category == LexemeImageCategory.Function)
             {
                 data = new EntityData() { LexemeImage = lexemeImage, Category = category, Lexeme = Lexemes.TypeIdentifier};
-                vertex = new SemanticTree(CurrentVertex, null, null, data);  // создали левого потомка с именем класса
+                vertex = new SemanticTree(CurrentVertex, null, null, data);  // создали левого потомка с именем функции
                 CurrentVertex._leftChild = vertex;  // привязали его как левого потомка
                 vertex._rightChild = new SemanticTree(vertex, null, null, null);  // сразу создали путого правого потомка
                 CurrentVertex = vertex._rightChild; // текущий указатель "внутри класса"
@@ -193,6 +196,37 @@ namespace Compiler
             CurrentVertex = vertex;
             return CurrentVertex;
         }
+        /// <summary>
+        /// Вставка объекта в семантическу таблицу
+        /// </summary>
+        /// <param name="variableImage">Вид объекта класса</param>
+        /// <param name="classNameImage">Вид типа объекта класса</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public SemanticTree IncudeClassObject(string variableImage, string classNameImage)
+        {
+            SemanticTree classDescription = FindUp(CurrentVertex, classNameImage);
+            if (classDescription == null)
+                throw new Exception($"Класс {classNameImage} ни разу не описан");
+            if (IsLexemeRepeatsInBlock(CurrentVertex, variableImage))
+                throw new Exception($"Объект '{variableImage}' уже был описан ранее");
+            EntityData data = new EntityData()
+            {
+                Category = LexemeImageCategory.ClassObject,
+                IsConstant = false,
+                DataType = DataTypesTable.UserType,
+                Lexeme = Lexemes.TypeIdentifier,
+                LexemeImage = variableImage,
+                LexemeValue = null
+            };
+            SemanticTree vertex = new SemanticTree(CurrentVertex, null, null, data);
+            CurrentVertex._leftChild = vertex;
+            CurrentVertex = vertex;
+            SemanticTree classDescriptionBody = classDescription.Copy(classDescription._rightChild, null);
+            classDescriptionBody._parent = CurrentVertex;
+            CurrentVertex._rightChild = classDescriptionBody;
+            return CurrentVertex;
+        }
 
         #endregion
 
@@ -206,47 +240,56 @@ namespace Compiler
         {
             for (int i = 0; i < level; i++)
             {
-                Console.Write("\t");
+                Console.Write("  ");
             }
-
-            switch (Data.Category)
-            {
-                case LexemeImageCategory.Constant:
-                    {
-                        Console.WriteLine($"Константа '{Data.LexemeImage}'");
-                        break;
-                    }
+            if (Data != null)
+                switch (Data.Category)
+                {
+                    case LexemeImageCategory.Constant:
+                        {
+                            Console.WriteLine($"Константа '{Data.LexemeImage}'");
+                            break;
+                        }
                     case LexemeImageCategory.Variable:
-                    {
-                        Console.WriteLine($"Переменная '{Data.LexemeImage}'");
-                        break;
-                    }
-                case LexemeImageCategory.Function:
-                    {
-                        Console.WriteLine($"Функция '{Data.LexemeImage}'");
-                        break;
-                    }
-                case LexemeImageCategory.ClassType:
-                    {
-                        Console.WriteLine($"Описание класса '{Data.LexemeImage}'");
-                        break;
-                    }
-                case LexemeImageCategory.ClassObject:
-                    {
-                        Console.WriteLine($"Объект '{Data.LexemeImage}'");
-                        break;
-                    }
-                default:
-                    {
-                        Console.WriteLine("Пустой узел");
-                        break;
-                    }
-            }
-
+                        {
+                            Console.WriteLine($"Переменная '{Data.LexemeImage}'");
+                            break;
+                        }
+                    case LexemeImageCategory.Function:
+                        {
+                            Console.WriteLine($"Функция '{Data.LexemeImage}'");
+                            break;
+                        }
+                    case LexemeImageCategory.ClassType:
+                        {
+                            Console.WriteLine($"Описание класса '{Data.LexemeImage}'");
+                            break;
+                        }
+                    case LexemeImageCategory.ClassObject:
+                        {
+                            Console.WriteLine($"Объект '{Data.LexemeImage}'");
+                            break;
+                        }
+                    default:
+                        {
+                            Console.WriteLine("Пустой узел");
+                            break;
+                        }
+                }
+            else
+                Console.WriteLine("Пустой узел");
             if (_rightChild != null)
                 _rightChild.Print(level + 1);
             if (_leftChild != null)
                 _leftChild.Print(level);
+        }
+
+        public override string ToString()
+        {
+            if (Data == null)
+                return "Пустой узел";
+            else
+                return Data.LexemeImage;
         }
     }
 }
