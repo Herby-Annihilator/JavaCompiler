@@ -27,7 +27,8 @@ namespace SynaxAnalyzer
         /// или <see cref="LexemeValue.DoubleValue"/> в зависимости от типов передаваемых значений</returns>
         public static LexemeValue ApplyArithmeticOperation(int firstValueType, LexemeValue firstValue,
             int secondValueType, LexemeValue secondValue, Lexemes operation, out int resultType)
-        { 
+        {
+            DataTypesTable.OperationResultType(firstValueType, secondValueType); // проверка на UndefType
             if (firstValueType == DataTypesTable.IntegerType && secondValueType == DataTypesTable.IntegerType)
             {
                 resultType = DataTypesTable.IntegerType;

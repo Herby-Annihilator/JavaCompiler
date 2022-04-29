@@ -466,7 +466,7 @@ namespace SynaxAnalyzer
 			int position;
 			int previousDataType = -1;
 			LexemeValue previousValue = new LexemeValue();
-			Lexemes arithmeticOperation;
+			Lexemes arithmeticOperation = Lexemes.TypeDot; // ну так, чисто по приколу
 			bool shouldCheck = false;
 			do
 			{
@@ -474,7 +474,10 @@ namespace SynaxAnalyzer
 				// проверка на допустимость и вычисление типа результата операции
 				if (shouldCheck)
                 {
-					dataType = DataTypesTable.OperationResultType(dataType, previousDataType);
+					lexemeValue = LexemeValueCalculator
+						.ApplyArithmeticOperation(previousDataType, previousValue, dataType,
+						lexemeValue, arithmeticOperation, out int resultType);
+					dataType = resultType;
                 }
 				shouldCheck = true;
 				previousDataType = dataType;
@@ -828,20 +831,19 @@ namespace SynaxAnalyzer
 		{
 			int position;
 			int previousDataType = -1;
+			LexemeValue previousValue = new LexemeValue();
+			Lexemes operation = Lexemes.TypeDot; // чисто по приколу
 			bool shouldCheck = false;
-			Lexemes operation;
 			do
 			{
 				ThirdLevel(out dataType, out lexemeValue);
 				// проверка на допустимость и вычисление типа результата операции
 				if (shouldCheck)
                 {
-					int oldType = dataType;
-					dataType = DataTypesTable.OperationResultType(dataType, previousDataType);
-					if (dataType == previousDataType)
-                    {
-
-                    }
+					lexemeValue = LexemeValueCalculator
+						.ApplyArithmeticOperation(previousDataType, previousValue, dataType,
+						lexemeValue, operation, out int resultType);
+					dataType = resultType;
                 }
 				shouldCheck = true;
 				previousDataType = dataType;
