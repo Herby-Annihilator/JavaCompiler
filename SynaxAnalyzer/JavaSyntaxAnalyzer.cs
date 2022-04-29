@@ -26,7 +26,7 @@ namespace SynaxAnalyzer
 			_lexer.Text = text;
 		}
 
-		public void AssignmentOperator(out int operatorReturnType)
+		public void AssignmentOperator(out int operatorReturnType, out LexemeValue lexemeValue)
 		{
 			SemanticTree obj;
 			_token = _lexer.GetNextToken();
@@ -67,44 +67,9 @@ namespace SynaxAnalyzer
 					}
 					else if (_token.Lexeme == Lexemes.TypeAssignmentSign)
 					{
-						Expression(out operatorReturnType);
-						if (obj.Data.DataType != operatorReturnType)
-                        {
-							throw new Exception($"Нельзя присвоить переменной типа {obj.Data.DataType} значение типа {operatorReturnType}");
-						}
-                        else
-                        {
-							// присваивание
-							switch (obj.Data.DataType)  // Костыль на костыле. Простите меня, кто будет смотреть этот ужас
-                            // дело даже не в switch, а в хардкоде ниже и, соответственно, сущности DataTypesTable
-							{
-								case 0:  // DataTypesTable.IntegerType
-									{
-										obj.Data.LexemeValue.IntegerValue = expressionResult;
-										break;
-                                    }
-								case 1:  // DataTypesTable.DoubleType
-									{
-
-										break;
-                                    }
-								case 2:  // DataTypesTable.BooleanType
-									{
-
-										break;
-                                    }
-								case 3:  // DataTypesTable.UserType
-									{
-
-										break;
-                                    }
-								case 1000:  // DataTypesTable.UndefType
-									{
-
-										break;
-                                    }
-                            }
-                        }
+						Expression(out operatorReturnType, out lexemeValue);
+						// присваивание
+						LexemeValueAssignor.AssingValue(obj.Data, lexemeValue, operatorReturnType);
 						break;
 					}
 					else
@@ -786,7 +751,7 @@ namespace SynaxAnalyzer
 			}
 		}
 
-		public void Operator(out int operatorReturnType, bool isFinctionBody, out string calculatedValue)
+		public void Operator(out int operatorReturnType, bool isFinctionBody, out LexemeValue lexemeValue)
 		{
 			int position = _lexer.Position;
 			operatorReturnType = DataTypesTable.UndefType;
@@ -794,6 +759,7 @@ namespace SynaxAnalyzer
 			if (_token.Lexeme == Lexemes.TypeSemicolon)
 			{
 				operatorReturnType = DataTypesTable.UndefType;
+				lexemeValue = new LexemeValue();
 				return;
 			}
 			else if (_token.Lexeme == Lexemes.TypeOpenCurlyBrace)
@@ -854,7 +820,7 @@ namespace SynaxAnalyzer
 			} while (_token.Lexeme == Lexemes.TypeDiv || _token.Lexeme == Lexemes.TypeMult || _token.Lexeme == Lexemes.TypeMod);
 			_lexer.Position = position;
 		}
-		public void SimpleOperator(out int operatorReturnType, out string calculatedValue)
+		public void SimpleOperator(out int operatorReturnType, out LexemeValue lexemeValue)
 		{
 			int position = _lexer.Position;
 			operatorReturnType = DataTypesTable.UndefType;
@@ -867,7 +833,7 @@ namespace SynaxAnalyzer
 			else if (_token.Lexeme == Lexemes.TypeReturn)
 			{
 				_lexer.Position = position;
-				ReturnOperator(out operatorReturnType);
+				ReturnOperator(out operatorReturnType, out lexemeValue);
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme != Lexemes.TypeSemicolon)
 				{
@@ -880,17 +846,17 @@ namespace SynaxAnalyzer
 				if (_token.Lexeme == Lexemes.TypeOpenParenthesis)
 				{
 					_lexer.Position = position;
-					FunctionCall(out operatorReturnType);					
+					FunctionCall(out operatorReturnType, out lexemeValue);					
 				}
 				else if (_token.Lexeme == Lexemes.TypeAssignmentSign)
 				{
 					_lexer.Position = position;
-					AssignmentOperator(out operatorReturnType);
+					AssignmentOperator(out operatorReturnType, out lexemeValue);
 				}
 				else
 				{
 					_lexer.Position = position;
-					Expression(out operatorReturnType);
+					Expression(out operatorReturnType, out  lexemeValue);
 				}
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme != Lexemes.TypeSemicolon)
@@ -905,12 +871,12 @@ namespace SynaxAnalyzer
 			}
 		}
 
-		public void ReturnOperator(out int returnType, out string calculatedValue)
+		public void ReturnOperator(out int returnType, out LexemeValue lexemeValue)
 		{
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme == Lexemes.TypeReturn)
 			{
-				Expression(out returnType);
+				Expression(out returnType, out lexemeValue);
 			}
 			else
 			{
@@ -942,32 +908,19 @@ namespace SynaxAnalyzer
 					throw new Exception($"Нельзя осуществить операцию прекремента для логического типа");
 				}
 				/*Ниже, конечно, спорно - изменениние значений lexemeValue*/
-				if (dataType == DataTypesTable.IntegerType)
-                {
-                    for (int i = 0; i < precrementsCount; i++)
-                    {
-						if (_token.Lexeme == Lexemes.TypeDecrement)
-							lexemeValue.IntegerValue--;
-						else
-							lexemeValue.IntegerValue++;
-                    }
-				}
-				if (dataType == DataTypesTable.DoubleType)
-                {
-                    for (int i = 0; i < precrementsCount; i++)
-                    {
-						if (_token.Lexeme == Lexemes.TypeDecrement)
-							lexemeValue.DoubleValue--;
-						else
-							lexemeValue.DoubleValue++;
-                    }
-                }
+				if (_token.Lexeme == Lexemes.TypeDecrement)
+					LexemeValueCalculator.ApplyDecrement(lexemeValue, dataType, precrementsCount);
+				else if (_token.Lexeme == Lexemes.TypeIncrement)
+					LexemeValueCalculator.ApplyIncrement(lexemeValue, dataType, precrementsCount);
+				else
+					throw new Exception($"{nameof(ThirdLevel)}: _token.Lexeme = {_token.Lexeme}");
             }
 		}
 
 		public void WhileCycle()
 		{
 			int expressionReturnType;
+			LexemeValue lexemeValue;
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme == Lexemes.TypeWhile)
 			{
@@ -975,7 +928,7 @@ namespace SynaxAnalyzer
 				if (_token.Lexeme == Lexemes.TypeOpenParenthesis)
 				{
 					// проверка типа
-					Expression(out expressionReturnType);
+					Expression(out expressionReturnType, out lexemeValue);
 					if (expressionReturnType != DataTypesTable.BoolType)
                     {
 						throw new Exception($"Условие в цикле должно иметь логический тип");
@@ -983,7 +936,7 @@ namespace SynaxAnalyzer
 					_token = _lexer.GetNextToken();
 					if (_token.Lexeme == Lexemes.TypeCloseParenthesis)
 					{
-						Operator(out int operatorReturnType, false);
+						Operator(out int operatorReturnType, false, out lexemeValue);
 					}
 					else
 					{

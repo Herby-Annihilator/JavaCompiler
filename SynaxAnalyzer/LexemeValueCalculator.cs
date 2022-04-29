@@ -112,5 +112,45 @@ namespace SynaxAnalyzer
                     throw new InvalidOperationException($"{operation} не является арифметической операцией.");
             }
         }
+        /// <summary>
+        /// Применяет операцию инкремента к значению <paramref name="value"/> типа <paramref name="valueType"/>
+        /// указанное количество раз (<paramref name="countOfIncrements"/>). 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="valueType"></param>
+        /// <param name="countOfIncrements"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public static void ApplyIncrement(LexemeValue value, int valueType, int countOfIncrements)
+        {
+            if (valueType == DataTypesTable.IntegerType)
+                for (int i = 0; i < countOfIncrements; i++)
+                    value.IntegerValue++;
+            else if (valueType == DataTypesTable.DoubleType)
+                for (int i = 0; i < countOfIncrements; i++)
+                    value.DoubleValue++;
+            else
+                throw new ArgumentException($"{nameof(valueType)} = {valueType} " +
+                    $"является недопустимым для операции инкремента");
+        }
+        /// <summary>
+        /// Применяет операцию декремента к значению <paramref name="value"/> типа <paramref name="valueType"/>
+        /// указанное количество раз (<paramref name="countOfIncrements"/>). 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="valueType"></param>
+        /// <param name="countOfIncrements"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public static void ApplyDecrement(LexemeValue value, int valueType, int countOfIncrements)
+        {
+            if (valueType == DataTypesTable.IntegerType)
+                for (int i = 0; i < countOfIncrements; i++)
+                    value.IntegerValue--;
+            else if (valueType == DataTypesTable.DoubleType)
+                for (int i = 0; i < countOfIncrements; i++)
+                    value.DoubleValue--;
+            else
+                throw new ArgumentException($"{nameof(valueType)} = {valueType} " +
+                    $"является недопустимым для операции декремента");
+        }
     }
 }

@@ -81,5 +81,24 @@ namespace Compiler
                 throw new Exception($"Недопустимая лексема {comparingOperation} в качестве логической операции");
             }
         }
+
+        public static string GetTypeName(int dataType)
+        {
+            switch (dataType)
+            {
+                case 0:
+                    return nameof(IntegerType);
+                case 1:
+                    return nameof(DoubleType);
+                case 2:
+                    return nameof(BoolType);
+                case 3:
+                    return nameof(UserType);
+                case 1000:
+                    return nameof(UndefType);
+                default:
+                    throw new ArgumentException($"Тип данных {dataType} не найден в таблице.");
+            }
+        }
     }
 }
