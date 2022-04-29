@@ -1,0 +1,11 @@
+class Main
+{
+	int func()
+	{
+		int a = 5;
+		double b = 10.8;
+		int c = a + 10;
+		a = b; // неявное преобразование
+		return 8;
+	}
+}

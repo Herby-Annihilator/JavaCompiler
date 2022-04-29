@@ -70,6 +70,7 @@ namespace SynaxAnalyzer
 						Expression(out operatorReturnType, out lexemeValue);
 						// присваивание
 						LexemeValueAssignor.AssingValue(obj.Data, lexemeValue, operatorReturnType);
+						EntityDataPrinter.Print(obj.Data, operatorReturnType);
 						break;
 					}
 					else
@@ -99,8 +100,8 @@ namespace SynaxAnalyzer
 			// \*************семантика*************/
 
 			SemanticTree toReturn = _table.IncludeLexeme(_token.Value, LexemeImageCategory.ClassType);
-			Console.WriteLine("Выделение памяти под описание класса. Дерево имеет вид:");
-			_table.Print();
+			//Console.WriteLine("Выделение памяти под описание класса. Дерево имеет вид:");
+			//_table.Print();
 
 			// /*************семантика*************\
 			_token = _lexer.GetNextToken();
@@ -136,7 +137,7 @@ namespace SynaxAnalyzer
 			// /*************семантика*************\
 		}
 
-		public void CompoundOperator(out int operatorReturnType, bool isFunctionBody)
+		public void CompoundOperator(out int operatorReturnType, bool isFunctionBody, out LexemeValue lexemeValue)
 		{
 			_token = _lexer.GetNextToken();
 			SemanticTree toReturn;
@@ -144,10 +145,10 @@ namespace SynaxAnalyzer
 			{
 				// \*************семантика*************/
 				toReturn = _table.IncludeCompoundOperator();
-				Console.WriteLine("Выделение памяти под сложный оператор. Дерево имеет вид:");
-				_table.Print();
+				//Console.WriteLine("Выделение памяти под сложный оператор. Дерево имеет вид:");
+				//_table.Print();
 				// /*************семантика*************\
-				CompoundOperatorBody(out operatorReturnType);
+				CompoundOperatorBody(out operatorReturnType, out lexemeValue);
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme != Lexemes.TypeCloseCurlyBrace)
 				{
@@ -158,8 +159,8 @@ namespace SynaxAnalyzer
 				if (!isFunctionBody)
                 {
 					_table.CurrentVertex.Left = null;
-					Console.WriteLine("Освобождение памяти после выхода из составного оператора. Дерево имеет вид:");
-					_table.Print();
+					//Console.WriteLine("Освобождение памяти после выхода из составного оператора. Дерево имеет вид:");
+					//_table.Print();
 				}
 				
 				// /*************семантика*************\
@@ -170,10 +171,11 @@ namespace SynaxAnalyzer
 			}
 		}
 
-		public void CompoundOperatorBody(out int operatorReturnType)
+		public void CompoundOperatorBody(out int operatorReturnType, out LexemeValue lexemeValue)
 		{
 			int position;
 			operatorReturnType = DataTypesTable.UndefType;
+			lexemeValue = new LexemeValue();
 			while (true)
 			{
 				if (IsItClassDescription())
@@ -201,7 +203,7 @@ namespace SynaxAnalyzer
 					else
 					{
 						_lexer.Position = position;
-						Operator(out operatorReturnType, false);
+						Operator(out operatorReturnType, false, out lexemeValue);
 					}
 				}
 			}
@@ -234,15 +236,15 @@ namespace SynaxAnalyzer
 						if (type == DataTypesTable.UserType)
                         {
 							toSetValue = _table.IncudeClassObject(_token.Value, dataTypeImage);
-							Console.WriteLine($"Выделение памяти для объекта '{_token.Value}' класса '{dataTypeImage}'." +
-                                $" Дерево имеет вид:");
-							_table.Print();
+							//Console.WriteLine($"Выделение памяти для объекта '{_token.Value}' класса '{dataTypeImage}'." +
+                               // $" Дерево имеет вид:");
+							//_table.Print();
 						}
 						else // заносим в таблицу переменную
 						{
 							toSetValue = _table.IncludeVariable(_token.Value, type);  // значение пока не известно
-							Console.WriteLine($"Выделение памяти для переменной '{_token.Value}'. Дерево имеет вид:");
-							_table.Print();
+							//Console.WriteLine($"Выделение памяти для переменной '{_token.Value}'. Дерево имеет вид:");
+							//_table.Print();
 						}					
 
 						_token = _lexer.GetNextToken();
@@ -250,7 +252,7 @@ namespace SynaxAnalyzer
 							continue;
 						else if (_token.Lexeme == Lexemes.TypeAssignmentSign)
 						{
-							Expression(out realType); // должно возвращать тип данных
+							Expression(out realType, out LexemeValue lexemeValue); // должно возвращать тип данных
 							if (!DataTypesTable.CheckTypesCompatibility(type, realType))
                             {
 								throw new Exception($"Нельзя присвоить тип {DataTypesTable.TypeToString(realType)}" +
@@ -260,7 +262,8 @@ namespace SynaxAnalyzer
                             {
 								toSetValue.Data.DataType = DataTypesTable.MixTypes(type, realType);
 								// присваивание
-
+								LexemeValueAssignor.AssingValue(toSetValue.Data, lexemeValue, realType);
+								EntityDataPrinter.Print(toSetValue.Data, toSetValue.Data.DataType);
                             }
 							position = _lexer.Position;
 							_token = _lexer.GetNextToken();
@@ -573,8 +576,8 @@ namespace SynaxAnalyzer
 					// \*************семантика*************/
 					toReturn = _table.IncludeLexeme(_token.Value, LexemeImageCategory.Function);
 					toReturn.Data.DataType = type;
-					Console.WriteLine("Выделение памяти под функцию. Дерево имеет вид:");
-					_table.Print();
+					//Console.WriteLine("Выделение памяти под функцию. Дерево имеет вид:");
+					//_table.Print();
 					// /*************семантика*************\
 					_token = _lexer.GetNextToken();
 					if (_token.Lexeme == Lexemes.TypeOpenParenthesis)
@@ -582,7 +585,8 @@ namespace SynaxAnalyzer
 						_token = _lexer.GetNextToken();
 						if (_token.Lexeme == Lexemes.TypeCloseParenthesis)
 						{
-							Operator(out returningType, true);
+							LexemeValue lexemeValue;
+							Operator(out returningType, true, out lexemeValue);
 							if (DataTypesTable.CheckTypesCompatibility(type, returningType))
                             {
 								toReturn.Data.DataType = DataTypesTable.MixTypes(type, returningType);
@@ -688,8 +692,8 @@ namespace SynaxAnalyzer
                         else
                         {
 							toReturn = _table.IncludeConstant(_token.Value, type);
-							Console.WriteLine($"Процесс выделения памяти для константы '{_token.Value}'. Дерево имеет вид:");
-							_table.Print();
+							//Console.WriteLine($"Процесс выделения памяти для константы '{_token.Value}'. Дерево имеет вид:");
+							//_table.Print();
                         }
 						// \*************семантика*************/
 						_token = _lexer.GetNextToken();
@@ -704,12 +708,14 @@ namespace SynaxAnalyzer
                                 {
 									realType = DataTypesTable.IntegerType;
 									toReturn.Data.LexemeValue = new LexemeValue { IntegerValue = Convert.ToInt32(_token.Value) };
+									EntityDataPrinter.Print(toReturn.Data, toReturn.Data.DataType);
 								}
 									
 								if (_token.Lexeme == Lexemes.TypeDouble)
                                 {
 									realType = DataTypesTable.DoubleType;
 									toReturn.Data.LexemeValue = new LexemeValue { DoubleValue = Convert.ToDouble(_token.Value) };
+									EntityDataPrinter.Print(toReturn.Data, toReturn.Data.DataType);
 								}
 									
 								if (realType != type)
@@ -765,12 +771,12 @@ namespace SynaxAnalyzer
 			else if (_token.Lexeme == Lexemes.TypeOpenCurlyBrace)
 			{
 				_lexer.Position = position;
-				CompoundOperator(out operatorReturnType, isFinctionBody);
+				CompoundOperator(out operatorReturnType, isFinctionBody, out lexemeValue);
 			}
 			else
 			{
 				_lexer.Position = position;
-				SimpleOperator(out operatorReturnType);
+				SimpleOperator(out operatorReturnType, out lexemeValue);
 			}
 		}
 
@@ -824,6 +830,7 @@ namespace SynaxAnalyzer
 		{
 			int position = _lexer.Position;
 			operatorReturnType = DataTypesTable.UndefType;
+			lexemeValue = new LexemeValue();
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme == Lexemes.TypeWhile)
 			{
