@@ -11,5 +11,11 @@ namespace Compiler
         public int IntegerValue { get; set; }
         public double DoubleValue { get; set; }
         public bool BoolValue { get; set; }
+
+        public LexemeValue Clone() =>
+            new LexemeValue() { BoolValue = BoolValue, DoubleValue = DoubleValue, IntegerValue = IntegerValue };
+
+        public override string ToString() => 
+            $"IntegerValue = {IntegerValue}, DoubleValue = {DoubleValue}, BoolValue = {BoolValue}";
     }
 }
