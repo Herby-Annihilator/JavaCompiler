@@ -391,7 +391,7 @@ namespace SynaxAnalyzer
 				else if (_token.Lexeme == Lexemes.TypeDouble)
                 {
 					dataType = DataTypesTable.DoubleType;
-					lexemeValue = new LexemeValue() { DoubleValue = Convert.ToDouble(_token.Value) };
+					lexemeValue = new LexemeValue() { DoubleValue = Convert.ToDouble(_token.Value.Replace('.', ',')) };
 				}					
 				return;
 			}
