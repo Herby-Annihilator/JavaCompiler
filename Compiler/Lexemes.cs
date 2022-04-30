@@ -15,11 +15,13 @@ namespace Compiler
 		TypeWhile,
 		TypeDataDouble,
 		TypeDataInt,
+		TypeDataBool,  // добавление поддержики типа bool
 		TypeReturn,
 		TypeConst,
 
 		TypeInt,
 		TypeDouble,
+		TypeBool,  // добавление поддержики типа bool
 
 		TypeIdentifier,
 

@@ -1,0 +1,6 @@
+class Main
+{
+	boolean s = false;
+	boolean d = true;
+	boolean r = s == d;
+}

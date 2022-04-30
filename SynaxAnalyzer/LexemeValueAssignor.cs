@@ -78,6 +78,14 @@ namespace SynaxAnalyzer
                     entityData.DataType = DataTypesTable.DoubleType;
                 }
             }
+            else if (entityData.DataType == DataTypesTable.BoolType)
+            {
+                if (lexemeValueType != DataTypesTable.BoolType)
+                    throw new Exception($"Нельзя присвоить тип {DataTypesTable.GetTypeName(lexemeValueType)} " +
+                        $"типу {DataTypesTable.GetTypeName(entityData.DataType)}");
+                entityData.LexemeValue = lexemeValue;
+                entityData.DataType = lexemeValueType;
+            }
         }
     }
 }

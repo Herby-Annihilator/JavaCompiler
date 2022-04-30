@@ -31,6 +31,10 @@ namespace SynaxAnalyzer
                 {
                     return CompareIntegerTypes(firstValue, secondValue, operation);               
                 }
+                if (firstType == DataTypesTable.BoolType && secondType == DataTypesTable.BoolType)
+                {
+                    return CompareBoolTypes(firstValue, secondValue, operation);
+                }
                 if (firstType == DataTypesTable.IntegerType)
                     firstValue.DoubleValue = firstValue.IntegerValue;
                 if (secondType == DataTypesTable.IntegerType)
@@ -42,6 +46,31 @@ namespace SynaxAnalyzer
                 throw new Exception($"Недопустимое сравнение типов");
             }           
         }
+        /// <summary>
+        /// Сравнивает два значения типа <see cref="DataTypesTable.BoolType"/> из таблицы <see cref="DataTypesTable"/>.
+        /// Сравниваются только <see cref="DataTypesTable.BoolType"/>.
+        /// </summary>
+        /// <param name="firstValue">Первое значение</param>
+        /// <param name="secondValue">Второе значение</param>
+        /// <param name="operation">Операция сравнения - лексема <see cref="Lexemes"/></param>
+        /// <returns><see cref="LexemeValue"/> с уже известным результатом <see cref="LexemeValue.BoolValue"/></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static LexemeValue CompareBoolTypes(LexemeValue firstValue, LexemeValue secondValue, Lexemes operation)
+        {
+            LexemeValue result = new LexemeValue();
+            switch (operation)
+            {
+                case Lexemes.TypeEqualSign:
+                    result.BoolValue = firstValue.BoolValue == secondValue.BoolValue;
+                    return result;
+                case Lexemes.TypeNotEqualSign:
+                    result.BoolValue = firstValue.BoolValue != secondValue.BoolValue;
+                    return result;
+                default:
+                    throw new InvalidOperationException($"{operation} не не может быть применена к операндам типа boolean");
+            }
+        }
+
         /// <summary>
         /// Сравнивает два значения типа <see cref="DataTypesTable.IntegerType"/> из таблицы <see cref="DataTypesTable"/>.
         /// Сравниваются только <see cref="DataTypesTable.IntegerType"/>.
@@ -114,5 +143,7 @@ namespace SynaxAnalyzer
                     throw new InvalidOperationException($"{operation} не является операцией сравнения");
             }
         }
+
+        public static bool GetBoolValueOfString(string pattern) => pattern == "true" ? true: false;
     }
 }

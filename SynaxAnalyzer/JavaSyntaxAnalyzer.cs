@@ -216,7 +216,10 @@ namespace SynaxAnalyzer
 			int realType = DataTypesTable.UndefType;
 			SemanticTree toSetValue;
 			_token = _lexer.GetNextToken();
-			if (_token.Lexeme == Lexemes.TypeDataInt || _token.Lexeme == Lexemes.TypeDataDouble || _token.Lexeme == Lexemes.TypeIdentifier)
+			if (_token.Lexeme == Lexemes.TypeDataInt 
+				|| _token.Lexeme == Lexemes.TypeDataDouble 
+				|| _token.Lexeme == Lexemes.TypeIdentifier
+				|| _token.Lexeme == Lexemes.TypeDataBool)
 			{
 				// определение типа
 				if (_token.Lexeme == Lexemes.TypeDataInt)
@@ -225,6 +228,8 @@ namespace SynaxAnalyzer
 					type = DataTypesTable.DoubleType;
 				else if (_token.Lexeme == Lexemes.TypeIdentifier)
 					type = DataTypesTable.UserType;
+				else if (_token.Lexeme == Lexemes.TypeDataBool)
+					type = DataTypesTable.BoolType;
 
 				do
 				{
@@ -384,7 +389,9 @@ namespace SynaxAnalyzer
 			int position1;
 			dataType = DataTypesTable.UndefType;
 			_token = _lexer.GetNextToken();
-			if (_token.Lexeme == Lexemes.TypeInt || _token.Lexeme == Lexemes.TypeDouble)
+			if (_token.Lexeme == Lexemes.TypeInt 
+				|| _token.Lexeme == Lexemes.TypeDouble
+				|| _token.Lexeme == Lexemes.TypeBool)
 			{
 				// Семантика
 				if (_token.Lexeme == Lexemes.TypeInt)
@@ -397,7 +404,12 @@ namespace SynaxAnalyzer
                 {
 					dataType = DataTypesTable.DoubleType;
 					lexemeValue = new LexemeValue() { DoubleValue = Convert.ToDouble(_token.Value.Replace('.', ',')) };
-				}					
+				}	
+				else if (_token.Lexeme == Lexemes.TypeBool)
+                {
+					dataType = DataTypesTable.BoolType;
+					lexemeValue = new LexemeValue() { BoolValue = LexemeValueComparer.GetBoolValueOfString(_token.Value) };
+                }
 				return;
 			}
 			else if (_token.Lexeme == Lexemes.TypeIdentifier)
@@ -563,7 +575,9 @@ namespace SynaxAnalyzer
 			SemanticTree toReturn;
 			_token = _lexer.GetNextToken();
 			int returningType;
-			if (_token.Lexeme == Lexemes.TypeDataDouble || _token.Lexeme == Lexemes.TypeDataInt)
+			if (_token.Lexeme == Lexemes.TypeDataDouble 
+				|| _token.Lexeme == Lexemes.TypeDataInt
+				|| _token.Lexeme == Lexemes.TypeDataBool)
 			{
 				// \*************семантика*************/
 
@@ -576,6 +590,10 @@ namespace SynaxAnalyzer
 				{
 					type = DataTypesTable.IntegerType;
 				}
+				else if (_token.Lexeme == Lexemes.TypeDataBool)
+                {
+					type = DataTypesTable.BoolType;
+                }
 
 				// /*************семантика*************\
 
@@ -682,13 +700,17 @@ namespace SynaxAnalyzer
 			if (_token.Lexeme == Lexemes.TypeConst)
 			{
 				_token = _lexer.GetNextToken();
-				if (_token.Lexeme == Lexemes.TypeDataInt || _token.Lexeme == Lexemes.TypeDataDouble)
+				if (_token.Lexeme == Lexemes.TypeDataInt 
+					|| _token.Lexeme == Lexemes.TypeDataDouble 
+					|| _token.Lexeme == Lexemes.TypeDataBool)
 				{
 					// \*************семантика*************/
 					if (_token.Lexeme == Lexemes.TypeDataInt)
 						type = DataTypesTable.IntegerType;
 					else if (_token.Lexeme == Lexemes.TypeDataDouble)
 						type = DataTypesTable.DoubleType;
+					else if (_token.Lexeme == Lexemes.TypeDataBool)
+						type = DataTypesTable.BoolType;
 					// /*************семантика*************\
 					_token = _lexer.GetNextToken();
 					if (_token.Lexeme == Lexemes.TypeIdentifier)
@@ -726,7 +748,14 @@ namespace SynaxAnalyzer
 									toReturn.Data.LexemeValue = new LexemeValue { DoubleValue = Convert.ToDouble(_token.Value) };
 									EntityDataPrinter.Print(toReturn.Data, toReturn.Data.DataType);
 								}
-									
+
+								if (_token.Lexeme == Lexemes.TypeBool)
+								{
+									realType = DataTypesTable.BoolType;
+									toReturn.Data.LexemeValue = new LexemeValue { BoolValue = LexemeValueComparer.GetBoolValueOfString(_token.Value) };
+									EntityDataPrinter.Print(toReturn.Data, toReturn.Data.DataType);
+								}
+
 								if (realType != type)
                                 {
 									throw new Exception($"Нельзя присвоить тип {DataTypesTable.TypeToString(realType)}" +
@@ -981,7 +1010,9 @@ namespace SynaxAnalyzer
 			bool ok = false;
 			int position = _lexer.Position;
 			_token = _lexer.GetNextToken();
-			if (_token.Lexeme == Lexemes.TypeDataInt || _token.Lexeme == Lexemes.TypeDataDouble)
+			if (_token.Lexeme == Lexemes.TypeDataInt 
+				|| _token.Lexeme == Lexemes.TypeDataDouble
+				|| _token.Lexeme == Lexemes.TypeDataBool)
 			{
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme == Lexemes.TypeIdentifier)
@@ -1026,7 +1057,10 @@ namespace SynaxAnalyzer
 			bool ok = false;
 			int position = _lexer.Position;
 			_token = _lexer.GetNextToken();
-			if (_token.Lexeme == Lexemes.TypeDataDouble || _token.Lexeme == Lexemes.TypeDataInt || _token.Lexeme == Lexemes.TypeIdentifier)
+			if (_token.Lexeme == Lexemes.TypeDataDouble 
+				|| _token.Lexeme == Lexemes.TypeDataInt 
+				|| _token.Lexeme == Lexemes.TypeIdentifier
+				|| _token.Lexeme == Lexemes.TypeDataBool)
 			{
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme == Lexemes.TypeIdentifier)

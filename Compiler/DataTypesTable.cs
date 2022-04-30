@@ -37,6 +37,8 @@ namespace Compiler
                 return IntegerType;
             if (type1 == DoubleType || type2 == DoubleType)
                 return DoubleType;
+            if (type1 == BoolType && type2 == BoolType)
+                return BoolType;
             return UndefType;
         }
 

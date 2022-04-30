@@ -315,7 +315,22 @@ namespace Lexer
 					{
 						token.Lexeme = Lexemes.TypeDataInt;
 						break;
-					}					
+					}
+				case "boolean":
+                    {
+						token.Lexeme = Lexemes.TypeDataBool;
+						break;
+                    }
+				case "true":
+                    {
+						token.Lexeme = Lexemes.TypeBool;
+						break;
+                    }
+				case "false":
+                    {
+						token.Lexeme = Lexemes.TypeBool;
+						break;
+                    }
 				case "class":
 					{
 						token.Lexeme = Lexemes.TypeClass;
