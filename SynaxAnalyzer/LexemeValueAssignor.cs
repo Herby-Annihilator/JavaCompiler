@@ -49,19 +49,16 @@ namespace SynaxAnalyzer
                         $"типу {DataTypesTable.GetTypeName(entityData.DataType)}");
                 if (lexemeValueType == DataTypesTable.IntegerType)
                 {
-                    if (lexemeValueType == DataTypesTable.IntegerType)
-                    {
-                        entityData.LexemeValue = lexemeValue;
-                        entityData.DataType = lexemeValueType;
-                    }   
-                    else // double
-                    {
-                        // обрезаем
-                        entityData.LexemeValue = new LexemeValue() { IntegerValue = (int)lexemeValue.DoubleValue };
-                        entityData.DataType = DataTypesTable.IntegerType;
-                    }
-                    return;
+                    entityData.LexemeValue = lexemeValue;
+                    entityData.DataType = lexemeValueType;
                 }
+                else // double
+                {
+                    // обрезаем
+                    entityData.LexemeValue = new LexemeValue() { IntegerValue = (int)lexemeValue.DoubleValue };
+                    entityData.DataType = DataTypesTable.IntegerType;
+                }
+                return;
             }
             else if (entityData.DataType == DataTypesTable.DoubleType)
             {

@@ -5,7 +5,9 @@ class Main
 		int a = 5;
 		double b = 10.8;
 		int c = a + 10;
-		a = b; // неявное преобразование
+		a = b; // неявное преобразование a = 10
+		a = a / 2 + 17; // a = 22
+		double d = b + a * c; // 340.8
 		return 8;
 	}
 }
