@@ -17,8 +17,10 @@ namespace Compiler
         public SemanticTree Parent { get => _parent; set => _parent = value; }
         
         public EntityData Data { get; set; }  // данные о сущности
-
-        public bool IsInterpret { get; set; } = false; // флаг интерпретации
+        /// <summary>
+        /// Флаг интерпртетации - по умолчанию = <see langword="true"/>
+        /// </summary>
+        public static bool IsInterpret { get; set; } = true; // флаг интерпретации
 
         public SemanticTree CurrentVertex { get; set; }
 
@@ -97,7 +99,7 @@ namespace Compiler
                 return null;
             SemanticTree result = new SemanticTree();
             result.Data = startNode.Data?.Clone();
-            result.IsInterpret = startNode.IsInterpret;
+            //result.IsInterpret = startNode.IsInterpret;
             result.CurrentVertex = startNode.CurrentVertex;
             result._parent = desiredParent;
             if (startNode._leftChild != null)
