@@ -3,4 +3,32 @@ class Main
 	boolean s = false;
 	boolean d = true;
 	boolean r = s == d;
+
+	int returnThree() return 3;
+	double returnTen() return 10;
+	int returnFive() return 5;
+	boolean returnTrue() return true;
+
+	int func()
+	{
+		int a = returnThree();
+		double ten = returnTen();
+		int five = returnFive();
+		boolean boolValue = returnTrue();
+
+		double expressionValue = a + ten * five - 50 / 2 % 3;
+		double onlyFunctions = returnThree() + returnTen() * returnFive();
+
+		boolean whatIsTrue = returnThree() > returnTen();
+		boolean f = whatIsTrue != returnTrue();
+
+		boolean intOrDouble = a > ten;
+
+		a = a++;
+		a = a--;
+
+		boolean moreOrEqual = 10 >= returnTen();
+		boolean moreOrEqual2 = 10 >= returnTen() - expressionValue / 2;
+		return 1;
+	}
 }

@@ -603,6 +603,7 @@ namespace SynaxAnalyzer
 					// \*************семантика*************/
 					toReturn = _table.IncludeLexeme(_token.Value, LexemeImageCategory.Function);
 					toReturn.Data.DataType = type;
+
 					//Console.WriteLine("Выделение памяти под функцию. Дерево имеет вид:");
 					//_table.Print();
 					// /*************семантика*************\
@@ -617,6 +618,8 @@ namespace SynaxAnalyzer
 							if (DataTypesTable.CheckTypesCompatibility(type, returningType))
                             {
 								toReturn.Data.DataType = DataTypesTable.MixTypes(type, returningType);
+								// TODO: убрать заглушку ниже
+								LexemeValueAssignor.AssingValue(toReturn.Data, lexemeValue, returningType);
 							}
 							else
 							{
