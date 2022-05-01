@@ -976,33 +976,53 @@ namespace SynaxAnalyzer
 		public void WhileCycle()
 		{
 			int expressionReturnType;
+			int position;
 			LexemeValue lexemeValue = new LexemeValue();
 			_token = _lexer.GetNextToken();
+			bool localInterpret = SemanticTree.IsInterpret;  // сохраняем флаг
 			if (_token.Lexeme == Lexemes.TypeWhile)
 			{
-				_token = _lexer.GetNextToken();
-				if (_token.Lexeme == Lexemes.TypeOpenParenthesis)
-				{
-					// проверка типа
-					Expression(out expressionReturnType, ref lexemeValue);
-					if (expressionReturnType != DataTypesTable.BoolType)
-                    {
-						throw new Exception($"Условие в цикле должно иметь логический тип");
-                    }
+				position = _lexer.Position;
+				while (SemanticTree.IsInterpret)
+                {
+					_lexer.Position = position;
 					_token = _lexer.GetNextToken();
-					if (_token.Lexeme == Lexemes.TypeCloseParenthesis)
+					if (_token.Lexeme == Lexemes.TypeOpenParenthesis)
 					{
-						Operator(out int operatorReturnType, false, ref lexemeValue);
+						// проверка типа
+						Expression(out expressionReturnType, ref lexemeValue);
+						if (expressionReturnType != DataTypesTable.BoolType)
+						{
+							throw new Exception($"Условие в цикле должно иметь логический тип");
+						}
+						else
+                        {
+							if (SemanticTree.IsInterpret && lexemeValue.BoolValue)
+								SemanticTree.IsInterpret = true;
+							else
+								SemanticTree.IsInterpret = false;
+                        }
+						_token = _lexer.GetNextToken();
+						if (_token.Lexeme == Lexemes.TypeCloseParenthesis)
+						{
+							/*
+							 * Если flagInterpret == false, то в теле цикла просто ничего не будет выполняться,
+							 * поэтому ставить условие перед выполнением нет необходимости, тем самым сканер дойдет до
+							 * конца тела цикла ничего не делая, и ничего не сломается
+							 */
+							Operator(out int operatorReturnType, false, ref lexemeValue);
+						}
+						else
+						{
+							throw new Exception($"Ожидался символ ')', но отсканировано '{_token.Lexeme}': {_token.Value}");
+						}
 					}
 					else
 					{
-						throw new Exception($"Ожидался символ ')', но отсканировано '{_token.Lexeme}': {_token.Value}");
+						throw new Exception($"Ожидался символ '(', но отсканировано '{_token.Lexeme}': {_token.Value}");
 					}
 				}
-				else
-				{
-					throw new Exception($"Ожидался символ '(', но отсканировано '{_token.Lexeme}': {_token.Value}");
-				}
+				SemanticTree.IsInterpret = localInterpret;
 			}
 			else
 			{
