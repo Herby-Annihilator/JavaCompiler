@@ -114,6 +114,8 @@ namespace Compiler
 
         public SemanticTree IncludeLexeme(string lexemeImage, LexemeImageCategory category)
         {
+            if (!IsInterpret)
+                return null;  // TODO: сделать с этим что-нибудь
             if (IsLexemeRepeatsInBlock(CurrentVertex, lexemeImage))
             {
                 throw new Exception($"Лексема '{lexemeImage}' уже была описана ранее");
@@ -157,6 +159,8 @@ namespace Compiler
 
         public SemanticTree IncludeCompoundOperator()
         {
+            if (!IsInterpret)
+                return null;  // TODO: сделать с этим что-нибудь
             // надо вернуть не vertex, а его родителя, в месте, где эта функция вызывается это фиксится
             SemanticTree vertex = new SemanticTree(CurrentVertex, null, null, null);
             vertex._rightChild = new SemanticTree(vertex, null, null, null);
@@ -167,6 +171,8 @@ namespace Compiler
 
         public SemanticTree IncludeConstant(string lexemeImage, int dataType, LexemeValue lexemeValue = null)
         {
+            if (!IsInterpret)
+                return null;  // TODO: сделать с этим что-нибудь
             if (IsLexemeRepeatsInBlock(CurrentVertex, lexemeImage))
             {
                 throw new Exception($"Константа '{lexemeImage}' уже была описана ранее");
@@ -181,6 +187,8 @@ namespace Compiler
 
         public SemanticTree IncludeVariable(string lexemeImage, int dataType, LexemeValue lexemeValue = null)
         {
+            if (!IsInterpret)
+                return null;  // TODO: сделать с этим что-нибудь
             if (IsLexemeRepeatsInBlock(CurrentVertex, lexemeImage))
             {
                 throw new Exception($"Переменная '{lexemeImage}' уже была описана ранее");
@@ -208,6 +216,8 @@ namespace Compiler
         /// <exception cref="Exception"></exception>
         public SemanticTree IncudeClassObject(string variableImage, string classNameImage)
         {
+            if (!IsInterpret)
+                return null;  // TODO: сделать с этим что-нибудь
             SemanticTree classDescription = FindUp(CurrentVertex, classNameImage);
             if (classDescription == null)
                 throw new Exception($"Класс {classNameImage} ни разу не описан");
