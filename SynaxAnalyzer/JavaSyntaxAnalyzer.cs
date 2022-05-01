@@ -360,17 +360,21 @@ namespace SynaxAnalyzer
 			Lexemes operation = Lexemes.TypeAssignmentSign;
 			int previousType = -1;
 			_token = _lexer.GetNextToken();
-			if (_token.Lexeme != Lexemes.TypePlus && _token.Lexeme != Lexemes.TypeMinus)
+			if (_token.Lexeme != Lexemes.TypePlus && _token.Lexeme != Lexemes.TypeMinus) // TODO: реализовать операцию применения знака к результату выражения
 				_lexer.Position = position;
 			do
 			{
 				FirstLevel(out dataType, ref lexemeValue);
 				if (shouldCompare)
                 {
-					if (DataTypesTable.CanTwoTypesBeCompared(previousType, dataType, operation))
+					if (DataTypesTable.CanTwoTypesBeCompared(previousType, dataType, operation)) // проверить тип можно
                     {
-						lexemeValue = LexemeValueComparer
+						if (SemanticTree.IsInterpret) // присвоить зачение можно только при интерпретировании
+                        {
+							lexemeValue = LexemeValueComparer
 							.CompareValues(previousType, previousValue, dataType, lexemeValue, operation);
+						}
+						// установить тип можно
 						dataType = DataTypesTable.BoolType;
 					}
                     else
@@ -407,18 +411,21 @@ namespace SynaxAnalyzer
 				if (_token.Lexeme == Lexemes.TypeInt)
                 {
 					dataType = DataTypesTable.IntegerType;
-					lexemeValue = new LexemeValue() { IntegerValue = Convert.ToInt32(_token.Value) };
+					if (SemanticTree.IsInterpret)
+						lexemeValue = new LexemeValue() { IntegerValue = Convert.ToInt32(_token.Value) };
 				}
 					
 				else if (_token.Lexeme == Lexemes.TypeDouble)
                 {
 					dataType = DataTypesTable.DoubleType;
-					lexemeValue = new LexemeValue() { DoubleValue = Convert.ToDouble(_token.Value.Replace('.', ',')) };
+					if (SemanticTree.IsInterpret)
+						lexemeValue = new LexemeValue() { DoubleValue = Convert.ToDouble(_token.Value.Replace('.', ',')) };
 				}	
 				else if (_token.Lexeme == Lexemes.TypeBool)
                 {
 					dataType = DataTypesTable.BoolType;
-					lexemeValue = new LexemeValue() { BoolValue = LexemeValueComparer.GetBoolValueOfString(_token.Value) };
+					if (SemanticTree.IsInterpret)
+						lexemeValue = new LexemeValue() { BoolValue = LexemeValueComparer.GetBoolValueOfString(_token.Value) };
                 }
 				return;
 			}
@@ -430,7 +437,8 @@ namespace SynaxAnalyzer
 					throw new Exception($"Идентификатор {_token.Value} ни разу не описан");
 				}
 				dataType = obj.Data.DataType;
-				lexemeValue = obj.Data.LexemeValue;
+				if (SemanticTree.IsInterpret)
+					lexemeValue = obj.Data.LexemeValue;
 
 				position1 = _lexer.Position;
 				_token = _lexer.GetNextToken();
@@ -473,9 +481,13 @@ namespace SynaxAnalyzer
 				// проверка на допустимость и вычисление типа результата операции
 				if (shouldCheck)
                 {
-					lexemeValue = LexemeValueCalculator
+					int resultType = DataTypesTable.MixTypes(previousDataType, dataType);
+					if (SemanticTree.IsInterpret)
+                    {
+						lexemeValue = LexemeValueCalculator
 						.ApplyArithmeticOperation(previousDataType, previousValue, dataType,
-						lexemeValue, arithmeticOperation, out int resultType);
+						lexemeValue, arithmeticOperation, out resultType);
+					}	
 					dataType = resultType;
                 }
 				shouldCheck = true;
@@ -508,17 +520,19 @@ namespace SynaxAnalyzer
 					}
 					else if (dataType == DataTypesTable.IntegerType)
                     {
-						if (_token.Lexeme == Lexemes.TypeIncrement)
-							lexemeValue.IntegerValue++;
-						else
-							lexemeValue.IntegerValue--;
+						if (SemanticTree.IsInterpret)
+							if (_token.Lexeme == Lexemes.TypeIncrement)
+								lexemeValue.IntegerValue++;
+							else
+								lexemeValue.IntegerValue--;
                     }
 					else if (dataType == DataTypesTable.DoubleType)
                     {
-						if (_token.Lexeme == Lexemes.TypeIncrement)
-							lexemeValue.DoubleValue++;
-						else
-							lexemeValue.DoubleValue--;
+						if (SemanticTree.IsInterpret)
+							if (_token.Lexeme == Lexemes.TypeIncrement)
+								lexemeValue.DoubleValue++;
+							else
+								lexemeValue.DoubleValue--;
                     }
 					continue;
 				}
@@ -697,7 +711,8 @@ namespace SynaxAnalyzer
 					{
 						_lexer.Position = position;
 						dataType = obj.Data.DataType;
-						lexemeValue = obj.Data.LexemeValue;
+						if (SemanticTree.IsInterpret)
+							lexemeValue = obj.Data.LexemeValue;
 						return;
 					}
 					builder.Append(".");
@@ -873,9 +888,13 @@ namespace SynaxAnalyzer
 				// проверка на допустимость и вычисление типа результата операции
 				if (shouldCheck)
                 {
-					lexemeValue = LexemeValueCalculator
+					int resultType = DataTypesTable.MixTypes(previousDataType, dataType);
+					if (SemanticTree.IsInterpret)
+                    {
+						lexemeValue = LexemeValueCalculator
 						.ApplyArithmeticOperation(previousDataType, previousValue, dataType,
-						lexemeValue, operation, out int resultType);
+						lexemeValue, operation, out resultType);
+					}					
 					dataType = resultType;
                 }
 				shouldCheck = true;
@@ -976,12 +995,13 @@ namespace SynaxAnalyzer
 					throw new Exception($"Нельзя осуществить операцию прекремента для логического типа");
 				}
 				/*Ниже, конечно, спорно - изменениние значений lexemeValue*/
-				if (_token.Lexeme == Lexemes.TypeDecrement)
-					LexemeValueCalculator.ApplyDecrement(lexemeValue, dataType, precrementsCount);
-				else if (_token.Lexeme == Lexemes.TypeIncrement)
-					LexemeValueCalculator.ApplyIncrement(lexemeValue, dataType, precrementsCount);
-				else
-					throw new Exception($"{nameof(ThirdLevel)}: _token.Lexeme = {_token.Lexeme}");
+				if (SemanticTree.IsInterpret)
+					if (_token.Lexeme == Lexemes.TypeDecrement)
+						LexemeValueCalculator.ApplyDecrement(lexemeValue, dataType, precrementsCount);
+					else if (_token.Lexeme == Lexemes.TypeIncrement)
+						LexemeValueCalculator.ApplyIncrement(lexemeValue, dataType, precrementsCount);
+					else
+						throw new Exception($"{nameof(ThirdLevel)}: _token.Lexeme = {_token.Lexeme}");
             }
 		}
 
