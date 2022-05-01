@@ -4,10 +4,10 @@ class Main
 	boolean d = true;
 	boolean r = s == d;
 
-	int returnThree() return 3;
-	double returnTen() return 10;
-	int returnFive() return 5;
-	boolean returnTrue() return true;
+	int returnThree() { return 3; }
+	double returnTen() { return 10; }
+	int returnFive() { return 5; }
+	boolean returnTrue() { return true; }
 
 	int func()
 	{

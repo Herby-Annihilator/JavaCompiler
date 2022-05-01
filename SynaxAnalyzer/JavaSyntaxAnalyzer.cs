@@ -575,6 +575,7 @@ namespace SynaxAnalyzer
 			SemanticTree toReturn;
 			_token = _lexer.GetNextToken();
 			int returningType;
+			bool localInterpret = SemanticTree.IsInterpret; // сохраняем флаг
 			if (_token.Lexeme == Lexemes.TypeDataDouble 
 				|| _token.Lexeme == Lexemes.TypeDataInt
 				|| _token.Lexeme == Lexemes.TypeDataBool)
@@ -601,6 +602,7 @@ namespace SynaxAnalyzer
 				if (_token.Lexeme == Lexemes.TypeIdentifier)
 				{
 					// \*************семантика*************/
+					SemanticTree.IsInterpret = true;  // в дерево необходимо внести заголовок функции
 					toReturn = _table.IncludeLexeme(_token.Value, LexemeImageCategory.Function);
 					toReturn.Data.DataType = type;
 
@@ -614,7 +616,9 @@ namespace SynaxAnalyzer
 						if (_token.Lexeme == Lexemes.TypeCloseParenthesis)
 						{
 							LexemeValue lexemeValue = new LexemeValue();
+							SemanticTree.IsInterpret = false;  // не интерпретировать тело функции
 							Operator(out returningType, true, ref lexemeValue);
+							SemanticTree.IsInterpret = localInterpret; // восстанавливаем значение флага
 							if (DataTypesTable.CheckTypesCompatibility(type, returningType))
                             {
 								toReturn.Data.DataType = DataTypesTable.MixTypes(type, returningType);
