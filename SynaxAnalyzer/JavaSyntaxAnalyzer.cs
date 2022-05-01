@@ -68,9 +68,13 @@ namespace SynaxAnalyzer
 					else if (_token.Lexeme == Lexemes.TypeAssignmentSign)
 					{
 						Expression(out operatorReturnType, ref lexemeValue);
+						DataTypesTable.CheckTypesCompatibility(obj.Data.DataType, operatorReturnType);
 						// присваивание
-						LexemeValueAssignor.AssingValue(obj.Data, lexemeValue, operatorReturnType);
-						EntityDataPrinter.Print(obj.Data, obj.Data.DataType);
+						if (SemanticTree.IsInterpret)
+                        {
+							LexemeValueAssignor.AssingValue(obj.Data, lexemeValue, operatorReturnType);
+							EntityDataPrinter.Print(obj.Data, obj.Data.DataType);
+						}						
 						break;
 					}
 					else
@@ -735,10 +739,12 @@ namespace SynaxAnalyzer
                         }
 						// \*************семантика*************/
 						_token = _lexer.GetNextToken();
-						if (_token.Lexeme == Lexemes.TypeAssignmentSign)
+						if (_token.Lexeme == Lexemes.TypeAssignmentSign) // в данном случае можно выполнять присваивание
 						{
 							_token = _lexer.GetNextToken();
-							if (_token.Lexeme == Lexemes.TypeInt || _token.Lexeme == Lexemes.TypeDouble)
+							if (_token.Lexeme == Lexemes.TypeInt 
+								|| _token.Lexeme == Lexemes.TypeDouble
+								|| _token.Lexeme == Lexemes.TypeBool)
 							{
 								// \*************семантика*************/
 								int realType = -1;
