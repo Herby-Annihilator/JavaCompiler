@@ -219,6 +219,7 @@ namespace SynaxAnalyzer
 			int type = -1;
 			int realType = DataTypesTable.UndefType;
 			SemanticTree toSetValue;
+			bool localInterpret = SemanticTree.IsInterpret;
 			_token = _lexer.GetNextToken();
 			if (_token.Lexeme == Lexemes.TypeDataInt 
 				|| _token.Lexeme == Lexemes.TypeDataDouble 
@@ -241,6 +242,7 @@ namespace SynaxAnalyzer
 					_token = _lexer.GetNextToken();
 					if (_token.Lexeme == Lexemes.TypeIdentifier)
 					{
+						SemanticTree.IsInterpret = true; // в таблицу надо занести данные о переменных, но не их значения
 						// заносим в таблицу объект класса
 						if (type == DataTypesTable.UserType)
                         {
@@ -261,6 +263,7 @@ namespace SynaxAnalyzer
 							continue;
 						else if (_token.Lexeme == Lexemes.TypeAssignmentSign)
 						{
+							SemanticTree.IsInterpret = localInterpret; // восстанавливаем флаг - обязательно
 							LexemeValue lexemeValue = new LexemeValue();
 							Expression(out realType, ref lexemeValue); // должно возвращать тип данных
 							if (!DataTypesTable.CheckTypesCompatibility(type, realType))
@@ -272,8 +275,11 @@ namespace SynaxAnalyzer
                             {
 								toSetValue.Data.DataType = DataTypesTable.MixTypes(type, realType);
 								// присваивание
-								LexemeValueAssignor.AssingValue(toSetValue.Data, lexemeValue, realType);
-								EntityDataPrinter.Print(toSetValue.Data, toSetValue.Data.DataType);
+								if (localInterpret)
+                                {
+									LexemeValueAssignor.AssingValue(toSetValue.Data, lexemeValue, realType);
+									EntityDataPrinter.Print(toSetValue.Data, toSetValue.Data.DataType);
+								}								
                             }
 							position = _lexer.Position;
 							_token = _lexer.GetNextToken();
