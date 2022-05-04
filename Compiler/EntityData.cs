@@ -40,6 +40,11 @@ namespace Compiler
         /// Тип данных лексемы из таблицы DataTypesTable. Если int a = 10, то DataType == int (значение 0)
         /// </summary>
         public int DataType { get; set; }
+        /// <summary>
+        /// Позиция в тексте - необходимо для того, чтобы выполнить тело функции.
+        /// По сути - только для функции это поле имеет значение, отличное от -1
+        /// </summary>
+        public int LexerPosition { get; set; } = -1;
         #endregion
 
         public EntityData Clone()
@@ -48,6 +53,7 @@ namespace Compiler
             result.Category = Category;
             result.LexemeImage = (string)LexemeImage.Clone();
             result.Lexeme = Lexeme;
+            result.LexerPosition = LexerPosition;
 
             return result;
         }

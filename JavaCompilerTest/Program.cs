@@ -29,6 +29,13 @@ namespace JavaCompilerTest
 				Console.WriteLine("\\-----------------------------------------------/");
 			}
 		}
+
+		private static int Fact(int n)
+        {
+			if (n == 0)
+				return 1;
+			return Fact(n - 1);
+        }
 		private static string StreamToString(FileStream stream)
 		{
 			StringBuilder builder = new StringBuilder((int)stream.Length);

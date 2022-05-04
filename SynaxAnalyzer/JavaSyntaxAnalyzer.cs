@@ -578,9 +578,21 @@ namespace SynaxAnalyzer
 					 * осталось извлечь правого потомка - тело функции и прилепить в качестве правого
 					 * потомка текущего узла
 					 */
+					SemanticTree currentContext = _table.CurrentVertex; // сохраняем контекст и данные
+					int currentLexerPosition = _lexer.Position;
+					bool localInterpret = SemanticTree.IsInterpret;
 
+					_lexer.Position = obj.Data.LexerPosition;
+					if (lexemeValue == null)
+						lexemeValue = new LexemeValue();
+					SemanticTree.IsInterpret = true;
+					_table.CurrentVertex = obj.CurrentVertex;
 
+					Operator(out dataType, true, ref lexemeValue);
 
+					SemanticTree.IsInterpret = localInterpret;  // восстанавливаем контекст и данные
+					_table.CurrentVertex = currentContext;
+					_lexer.Position = currentLexerPosition;
 					/* Исполнение тела функции (выделение памяти) */
 				}
 				else
@@ -639,6 +651,7 @@ namespace SynaxAnalyzer
 						_token = _lexer.GetNextToken();
 						if (_token.Lexeme == Lexemes.TypeCloseParenthesis)
 						{
+							toReturn.Data.LexerPosition = _lexer.Position; // запомнили указатель текста
 							LexemeValue lexemeValue = new LexemeValue();
 							SemanticTree.IsInterpret = false;  // не интерпретировать тело функции
 							Operator(out returningType, true, ref lexemeValue);
