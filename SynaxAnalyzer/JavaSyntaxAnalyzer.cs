@@ -102,8 +102,13 @@ namespace SynaxAnalyzer
 				throw new Exception($"Ожидался идентификатор, но отсканировано '{_token.Lexeme}': {_token.Value}");
 			}
 			// \*************семантика*************/
-
+			bool localInterpret = SemanticTree.IsInterpret;
+			SemanticTree.IsInterpret = true;
 			SemanticTree toReturn = _table.IncludeLexeme(_token.Value, LexemeImageCategory.ClassType);
+			if (toReturn.Data.LexemeImage.ToLower() == "main")
+				SemanticTree.IsInterpret = true;
+			else
+				SemanticTree.IsInterpret = localInterpret;
 			//Console.WriteLine("Выделение памяти под описание класса. Дерево имеет вид:");
 			//_table.Print();
 
@@ -159,7 +164,7 @@ namespace SynaxAnalyzer
 					throw new Exception("Ожидался символ '}', но отсканировано '" + _token.Lexeme + "': " + _token.Value);
 				}
 				// \*************семантика*************/
-				_table.CurrentVertex = toReturn.Parent;  // возврат
+				_table.CurrentVertex = toReturn?.Parent;  // возврат
 				if (!isFunctionBody)
                 {
 					_table.CurrentVertex.Left = null;
@@ -384,7 +389,8 @@ namespace SynaxAnalyzer
                 }
 				shouldCompare = true;
 				previousType = dataType;
-				previousValue = lexemeValue.Clone();
+				if (SemanticTree.IsInterpret)
+					previousValue = lexemeValue.Clone();
 				position = _lexer.Position;
 				_token = _lexer.GetNextToken();
 
@@ -492,7 +498,8 @@ namespace SynaxAnalyzer
                 }
 				shouldCheck = true;
 				previousDataType = dataType;
-				previousValue = lexemeValue;
+				if (SemanticTree.IsInterpret)
+					previousValue = lexemeValue;
 				position = _lexer.Position;
 				_token = _lexer.GetNextToken();
 				arithmeticOperation = _token.Lexeme;
@@ -562,7 +569,8 @@ namespace SynaxAnalyzer
 				else
                 {
 					dataType = obj.Data.DataType;
-					lexemeValue = obj.Data.LexemeValue;
+					if (SemanticTree.IsInterpret)
+						lexemeValue = obj.Data.LexemeValue;
                 }
 				_token = _lexer.GetNextToken();
 				if (_token.Lexeme == Lexemes.TypeOpenParenthesis)
@@ -572,34 +580,42 @@ namespace SynaxAnalyzer
 					{
 						throw new Exception("Ожидался символ ')', но отсканировано '" + _token.Lexeme + "': " + _token.Value);
 					}
-					/* Исполнение тела функции (выделение памяти) */
-					/* 
-					 * на данном моменте obj содержит указатель на узел с функцией в качестве содержимого
-					 *
-					 */
-					SemanticTree currentContext = _table.CurrentVertex; // сохраняем контекст и данные
-					int currentLexerPosition = _lexer.Position;
-					bool localInterpret = SemanticTree.IsInterpret;
+					if (SemanticTree.IsInterpret)
+                    {
+						/* Исполнение тела функции */
 
-					_lexer.Position = obj.Data.LexerPosition; // выставляем позицию в тексте на оператор функции
-					SemanticTree.IsInterpret = true;
-					SemanticTree functionDescription = SemanticTree.CopyFunctionDescription(obj); // копия описания с пустым (не null) правым потомком
-					functionDescription.Left = obj.Left;   // внедрение копии заголовка
-					obj.Left.Parent = functionDescription; // между описанием
-					functionDescription.Parent = obj;      // и 
-					obj.Left = functionDescription;        // его левым потомком
+						// на данном моменте obj содержит указатель на узел с функцией в качестве содержимого
 
-					dataType = functionDescription.Data.DataType;
-					lexemeValue = functionDescription.Data.LexemeValue;
+						SemanticTree currentContext = _table.CurrentVertex; // сохраняем контекст и данные
+						int currentLexerPosition = _lexer.Position;
+						bool localInterpret = SemanticTree.IsInterpret;
 
-					_table.CurrentVertex = functionDescription.CurrentVertex; // правый потомок заголовка
+						_lexer.Position = obj.Data.LexerPosition; // выставляем позицию в тексте на оператор функции
+						SemanticTree.IsInterpret = true;
+						SemanticTree functionDescription = SemanticTree.CopyFunctionDescription(obj); // копия описания с пустым (не null) правым потомком
+						functionDescription.Left = obj.Left;   // внедрение копии заголовка
+						obj.Left.Parent = functionDescription; // между описанием
+						functionDescription.Parent = obj;      // и 
+						obj.Left = functionDescription;        // его левым потомком
 
-					Operator(out dataType, true, ref lexemeValue);
+						dataType = functionDescription.Data.DataType;
+						lexemeValue = functionDescription.Data.LexemeValue;
 
-					SemanticTree.IsInterpret = localInterpret;  // восстанавливаем контекст и данные
-					_table.CurrentVertex = currentContext;
-					_lexer.Position = currentLexerPosition;
-					/* Исполнение тела функции (выделение памяти) */
+						_table.CurrentVertex = functionDescription.CurrentVertex; // правый потомок заголовка
+
+						Operator(out dataType, true, ref lexemeValue);
+
+						SemanticTree.IsInterpret = localInterpret;  // восстанавливаем контекст и данные
+						_table.CurrentVertex = currentContext;
+						_lexer.Position = currentLexerPosition;
+
+						functionDescription.Left.Parent = obj;  // восстанавливаем связи
+						obj.Left = functionDescription.Left;
+						functionDescription.Left = null;  // вырезаем ненужный узел
+						functionDescription.Parent = null;
+						functionDescription = null;  // чтобы GC мог его собрать
+						/* Исполнение тела функции */
+					}
 				}
 				else
 				{
@@ -659,7 +675,8 @@ namespace SynaxAnalyzer
 						{
 							toReturn.Data.LexerPosition = _lexer.Position; // запомнили указатель текста
 							LexemeValue lexemeValue = new LexemeValue();
-							SemanticTree.IsInterpret = false;  // не интерпретировать тело функции
+							if (toReturn.Data.LexemeImage.ToLower() != "main")
+								SemanticTree.IsInterpret = false;  // не интерпретировать тело функции
 							Operator(out returningType, true, ref lexemeValue);
 							SemanticTree.IsInterpret = localInterpret; // восстанавливаем значение флага
 							if (DataTypesTable.CheckTypesCompatibility(type, returningType))
@@ -918,7 +935,8 @@ namespace SynaxAnalyzer
                 }
 				shouldCheck = true;
 				previousDataType = dataType;
-				previousValue = lexemeValue;
+				if (SemanticTree.IsInterpret)
+					previousValue = lexemeValue;
 				position = _lexer.Position;
 				_token = _lexer.GetNextToken();
 				operation = _token.Lexeme;

@@ -14,7 +14,7 @@ namespace JavaCompilerTest
 		{
 			try
 			{
-				FileStream stream = new FileStream(@"C:\Users\Rukin\source\repos\JavaCompiler\JavaCompilerTest\lab_4.txt", FileMode.Open, FileAccess.Read);
+				FileStream stream = new FileStream(@"C:\Users\Rukin\source\repos\JavaCompiler\JavaCompilerTest\lab_6.txt", FileMode.Open, FileAccess.Read);
 				JavaLexer lexer = new JavaLexer();
 				lexer.Text = StreamToString(stream);
 				stream.Close();

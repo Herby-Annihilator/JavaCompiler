@@ -1,0 +1,16 @@
+class Main
+{
+	int a = 5;
+	double func()
+	{
+		double b = 10.8;
+
+		return func();
+	}
+
+	double main()
+	{
+		double one = func();
+		return one + 2;
+	}
+}

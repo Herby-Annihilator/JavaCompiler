@@ -20,7 +20,7 @@ namespace Compiler
         /// <summary>
         /// Флаг интерпртетации - по умолчанию = <see langword="true"/>
         /// </summary>
-        public static bool IsInterpret { get; set; } = true; // флаг интерпретации
+        public static bool IsInterpret { get; set; } = false; // флаг интерпретации
 
         public SemanticTree CurrentVertex { get; set; }
 
@@ -248,7 +248,8 @@ namespace Compiler
             {
                 Data = functionDescription.Data.Clone(),
             };
-            result.Right = new SemanticTree(result, null, null, functionDescription.Right.Data.Clone());
+            result.Data.LexemeImage += Guid.NewGuid().ToString(); // чтобы отличать имена при поиске описания
+            result.Right = new SemanticTree(result, null, null, functionDescription.Right.Data?.Clone());
             result.CurrentVertex = result.Right;
             return result;
         }
