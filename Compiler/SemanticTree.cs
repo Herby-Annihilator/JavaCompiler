@@ -241,6 +241,18 @@ namespace Compiler
             return CurrentVertex;
         }
 
+
+        public static SemanticTree CopyFunctionDescription(SemanticTree functionDescription)
+        {
+            SemanticTree result = new SemanticTree()
+            {
+                Data = functionDescription.Data.Clone(),
+            };
+            result.Right = new SemanticTree(result, null, null, functionDescription.Right.Data.Clone());
+            result.CurrentVertex = result.Right;
+            return result;
+        }
+
         #endregion
 
         public void Print() => Print(0);

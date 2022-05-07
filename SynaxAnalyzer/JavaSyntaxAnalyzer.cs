@@ -575,18 +575,24 @@ namespace SynaxAnalyzer
 					/* Исполнение тела функции (выделение памяти) */
 					/* 
 					 * на данном моменте obj содержит указатель на узел с функцией в качестве содержимого
-					 * осталось извлечь правого потомка - тело функции и прилепить в качестве правого
-					 * потомка текущего узла
+					 *
 					 */
 					SemanticTree currentContext = _table.CurrentVertex; // сохраняем контекст и данные
 					int currentLexerPosition = _lexer.Position;
 					bool localInterpret = SemanticTree.IsInterpret;
 
-					_lexer.Position = obj.Data.LexerPosition;
-					if (lexemeValue == null)
-						lexemeValue = new LexemeValue();
+					_lexer.Position = obj.Data.LexerPosition; // выставляем позицию в тексте на оператор функции
 					SemanticTree.IsInterpret = true;
-					_table.CurrentVertex = obj.CurrentVertex;
+					SemanticTree functionDescription = SemanticTree.CopyFunctionDescription(obj); // копия описания с пустым (не null) правым потомком
+					functionDescription.Left = obj.Left;   // внедрение копии заголовка
+					obj.Left.Parent = functionDescription; // между описанием
+					functionDescription.Parent = obj;      // и 
+					obj.Left = functionDescription;        // его левым потомком
+
+					dataType = functionDescription.Data.DataType;
+					lexemeValue = functionDescription.Data.LexemeValue;
+
+					_table.CurrentVertex = functionDescription.CurrentVertex; // правый потомок заголовка
 
 					Operator(out dataType, true, ref lexemeValue);
 
