@@ -1051,9 +1051,15 @@ namespace SynaxAnalyzer
 			bool localInterpret = SemanticTree.IsInterpret;  // сохраняем флаг
 			if (_token.Lexeme == Lexemes.TypeWhile)
 			{
+				bool checkSem = false;
 				position = _lexer.Position;
-				while (SemanticTree.IsInterpret)
+				if (!SemanticTree.IsInterpret)
                 {
+					checkSem = true;
+                }
+				while (SemanticTree.IsInterpret || checkSem)
+                {
+					checkSem = false;
 					_lexer.Position = position;
 					_token = _lexer.GetNextToken();
 					if (_token.Lexeme == Lexemes.TypeOpenParenthesis)

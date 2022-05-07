@@ -8,9 +8,19 @@ class Main
 		return func();
 	}
 
+	int whileFunc()
+	{
+		int a = 0;
+		while (a < 10)
+			a++;
+		return a;
+	}
+
 	double main()
 	{
-		double one = func();
+		//double one = func();
+		double b = 10;
+		int result = whileFunc();
 		return one + 2;
 	}
 }
