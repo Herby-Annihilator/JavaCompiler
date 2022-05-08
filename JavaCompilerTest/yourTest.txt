@@ -1,0 +1,27 @@
+class Main {
+
+	int ia = 1000, ib = ia * ia * ia; // ўшёыр т яЁхфхырї ЁрчьхЁэюёЄш
+	double x = 1234.56 + 1.0/ib,
+	y = ia * ib, // y - отрицательное, потеря разпядности
+	z = x * ib; // z=1.23456e+012
+	// z вычисляется без потери значимости
+	
+	class Test {
+		double tx, ty;
+	}
+
+	class Test_2 {
+		Test tta, ttb;
+		int ia;
+	}
+
+	int main() {
+		Test_2 a, b;
+		a.tta.tx = z - 0.005; // a.tta.tx=1.23456e+012
+		b.tta.tx = a.tta.tx * ib; // b.tta.tx=1.23456e+021
+		int res = a.tta.tx + 1; // потеря разпядности
+		double res1 = (res == a.tta.tx + ia / ib ); // res1=0
+		double res2 = (res != a.tta.tx + ia / ib ); // res2=1
+		return res1;
+	}
+}

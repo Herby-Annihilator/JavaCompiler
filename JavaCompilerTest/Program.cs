@@ -14,7 +14,7 @@ namespace JavaCompilerTest
 		{
 			try
 			{
-				FileStream stream = new FileStream(@"C:\Users\Rukin\source\repos\JavaCompiler\JavaCompilerTest\lab_6.txt", FileMode.Open, FileAccess.Read);
+				FileStream stream = new FileStream(@"C:\Users\Rukin\source\repos\JavaCompiler\JavaCompilerTest\yourTest.txt", FileMode.Open, FileAccess.Read);
 				JavaLexer lexer = new JavaLexer();
 				lexer.Text = StreamToString(stream);
 				stream.Close();
@@ -30,6 +30,8 @@ namespace JavaCompilerTest
 			}
 		}
 
+		static int ia = 1000, ib = ia * ia * ia; 
+		double x = 1234.56 + 1.0 / ib;
 		private static string StreamToString(FileStream stream)
 		{
 			StringBuilder builder = new StringBuilder((int)stream.Length);

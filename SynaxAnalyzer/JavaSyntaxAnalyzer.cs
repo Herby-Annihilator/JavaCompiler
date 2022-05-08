@@ -108,7 +108,7 @@ namespace SynaxAnalyzer
 			if (toReturn.Data.LexemeImage.ToLower() == "main")
 				SemanticTree.IsInterpret = true;
 			else
-				SemanticTree.IsInterpret = localInterpret;
+				SemanticTree.IsInterpret = false;
 			//Console.WriteLine("Выделение памяти под описание класса. Дерево имеет вид:");
 			//_table.Print();
 
@@ -125,7 +125,7 @@ namespace SynaxAnalyzer
 				// \*************семантика*************/
 
 				_table.CurrentVertex = toReturn; // возврат
-
+				SemanticTree.IsInterpret = localInterpret;
 				// /*************семантика*************\
 				return;
 			}
@@ -142,7 +142,7 @@ namespace SynaxAnalyzer
 			// \*************семантика*************/
 
 			_table.CurrentVertex = toReturn;  // возврат
-
+			SemanticTree.IsInterpret = localInterpret;
 			// /*************семантика*************\
 		}
 
@@ -164,12 +164,15 @@ namespace SynaxAnalyzer
 					throw new Exception("Ожидался символ '}', но отсканировано '" + _token.Lexeme + "': " + _token.Value);
 				}
 				// \*************семантика*************/
-				_table.CurrentVertex = toReturn?.Parent;  // возврат
-				if (!isFunctionBody)
+				if (SemanticTree.IsInterpret)
                 {
-					_table.CurrentVertex.Left = null;
-					//Console.WriteLine("Освобождение памяти после выхода из составного оператора. Дерево имеет вид:");
-					//_table.Print();
+					_table.CurrentVertex = toReturn?.Parent;  // возврат
+					if (!isFunctionBody)
+					{
+						_table.CurrentVertex.Left = null;
+						//Console.WriteLine("Освобождение памяти после выхода из составного оператора. Дерево имеет вид:");
+						//_table.Print();
+					}
 				}
 				
 				// /*************семантика*************\

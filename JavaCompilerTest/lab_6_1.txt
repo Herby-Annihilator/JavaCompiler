@@ -1,0 +1,27 @@
+class Main
+{
+	class TestClass
+	{
+		int ta = 5;
+		int func() { return 10; }
+		double expression()
+		{
+			int tea = 10;
+			double teb = 15;
+			return tea + teb / 12.5 + func();
+		}
+	}
+
+	int func()
+	{
+		int r = 10;
+		return 45;
+	}
+
+	int main()
+	{
+		int am = 10;
+		int bm = func();
+		return 0;
+	}
+}
